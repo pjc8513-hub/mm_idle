@@ -2,6 +2,7 @@ import { state, spellHandState } from "./state.js";
 import { AREA_TEMPLATES } from "./content/areaDefs.js";
 import { renderPartyPanel } from "./party.js";
 import { renderBuildingPanel } from "./town.js";
+import { renderDungeonPanel } from "./dungeonPanel.js";
 import { renderAreaPanel, setupEnemyEffectsCanvas } from "./area.js";
 import { renderQuestPanel } from "./questManager.js";
 import { on } from "./events.js";
@@ -134,7 +135,7 @@ export function showPanel(panelId) {
     document.getElementById("resourceBar").classList.add("dungeon-bg");
     removeBackgroundElement("sidePanel");
     document.getElementById("sidePanel").classList.add("dungeon-bg");
-    renderBuildingPanel();
+    renderDungeonPanel(); // ← CRITICAL LINE
   }
   if (panelId === "panelArea") {
     

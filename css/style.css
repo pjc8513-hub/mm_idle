@@ -1762,3 +1762,8 @@ body, html {
   display: flex;
   gap: 8px;
 }
+
+.disabled-btn {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

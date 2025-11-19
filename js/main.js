@@ -19,7 +19,8 @@ import { initSummonSystem } from "./systems/summonSystem.js";
 import { initBuildingMenu } from "./content/buildingMenu.js";
 import { initSpellbookPanel } from "./spellbookPanel.js";
 import { initRunePanel } from "./runePanel.js";
-
+import { initDungeonMode } from "./dungeonMode.js";
+import { initDungeonPanel } from "./dungeonPanel.js";
 
 window.addEventListener("DOMContentLoaded", () => {
   // Initialize all systems
@@ -38,6 +39,9 @@ window.addEventListener("DOMContentLoaded", () => {
   initBuildingMenu();
   initSpellbookPanel();
   initRunePanel(); // rune initialize mini game
+  initDungeonMode();
+  initDungeonPanel();
+  
   
   // Start the game loop
   startGameLoop();

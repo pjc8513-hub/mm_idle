@@ -12,6 +12,7 @@ import { summonsState } from "./systems/summonSystem.js";
 import { updateSpellDock } from "./systems/dockManager.js";
 import { getBuildingLevel } from "./town.js";
 import { heroSpells } from "./content/heroSpells.js";
+import { dungeonState } from "./dungeonMode.js";
 
 /* -------------------------
    Wave Timer Management (Delta Time)
@@ -31,18 +32,24 @@ let paused = false;
 export function startWaveTimer() {
   stopWaveTimer(); // just to be safe
 
-  // 🧮 Calculate duration from party HP
+  // 🏰 DUNGEON MODE: Use fixed 10 second timer
+  if (dungeonState.active) {
+    maxTime = dungeonState.DUNGEON_MAX_TIME;
+    timeRemaining = maxTime;
+    waveActive = true;
+    paused = false;
+    updateTimerDisplay();
+    return;
+  }
+
+  // 🧮 Normal mode: Calculate duration from party HP
   const partyHP = Number(partyState.totalStats.hp) || 0;
-  // Example: each HP gives 2 seconds (adjust as you balance)
   let calculatedTime = partyHP * HP_TIME_RATIO;
   
-  // Prevent NaN or zero-time waves
   const maxAllowedTime = BASE_MAX_TIME + maxTimeUpgradeBonus;
   maxTime = Math.min(Math.max(BASE_MIN_TIME, calculatedTime), maxAllowedTime);
   
-  // initialize
   timeRemaining = maxTime;
-
   waveActive = true;
   paused = false;
 
@@ -107,33 +114,39 @@ export function getBonusGoldMultiplier() {
   return 1 + (timeBonus * 0.5);
 }
 
+// MODIFY updateTimerDisplay() to show dungeon mode styling:
 function updateTimerDisplay() {
   const shieldPercent = Math.max(0, (timeShield / maxTime) * 100);
   const timePercent = Math.max(0, (timeRemaining / maxTime) * 100);
   const timerBar = document.getElementById("waveTimerBar");
   const timerText = document.getElementById("waveTimerText");
 
-  timerBar.style.background = `linear-gradient(
-    to right,
-    gold 0% ${shieldPercent}%,
-    ${timePercent > 50 ? '#2196f3' : timePercent > 20 ? '#ff9800' : '#f44336'} ${shieldPercent}% 100%
-  )`;
-
+  // 🏰 Dungeon mode: Use purple/dark theme
+  if (dungeonState.active) {
+    timerBar.style.background = `linear-gradient(
+      to right,
+      gold 0% ${shieldPercent}%,
+      ${timePercent > 50 ? '#9c27b0' : timePercent > 20 ? '#e91e63' : '#f44336'} ${shieldPercent}% 100%
+    )`;
+  } else {
+    // Normal mode: Use blue/orange/red theme
+    timerBar.style.background = `linear-gradient(
+      to right,
+      gold 0% ${shieldPercent}%,
+      ${timePercent > 50 ? '#2196f3' : timePercent > 20 ? '#ff9800' : '#f44336'} ${shieldPercent}% 100%
+    )`;
+  }
 
   if (timerBar && timerText) {
     const percentage = Math.max(0, (timeRemaining / maxTime) * 100);
     timerBar.style.width = `${percentage}%`;
-    timerText.textContent = `${Math.ceil(timeRemaining)}s`;
-/*
-    // Color changes based on time remaining
-    if (percentage > 50) {
-      timerBar.style.background = "linear-gradient(90deg, #2196f3 0%, #03a9f4 100%)";
-    } else if (percentage > 20) {
-      timerBar.style.background = "linear-gradient(90deg, #ff9800 0%, #ffc107 100%)";
+    
+    // 🏰 Show dungeon depth in timer text
+    if (dungeonState.active) {
+      timerText.textContent = `Depth ${dungeonState.depth} | ${Math.ceil(timeRemaining)}s`;
     } else {
-      timerBar.style.background = "linear-gradient(90deg, #f44336 0%, #ff5722 100%)";
+      timerText.textContent = `${Math.ceil(timeRemaining)}s`;
     }
-      */
   }
 }
 
@@ -224,6 +237,49 @@ export function renderAreaPanel() {
   const panel = document.getElementById("panelArea");
   if (!panel) return;
 
+  // 🏰 Dungeon mode uses different header
+  if (dungeonState.active) {
+    panel.innerHTML = `
+      <div class="area-content">
+        <div class="area-main">
+          <div class="area-header dungeon-header">
+            <div id="areaName">🏰 Dungeon Mode - Depth: ${dungeonState.depth}</div>
+            <div class="dungeon-stats">
+              Enemies Defeated: ${dungeonState.enemiesDefeated} | Best: ${dungeonState.maxDepth}
+            </div>
+          </div>
+          <div class="wave-timer-section dungeon-timer">
+            <div class="timer-container">
+              <div class="timer-bar-background">
+                <div id="waveTimerBar" class="timer-bar"></div>
+              </div>
+              <div id="waveTimerText" class="timer-text">${timeRemaining}s</div>
+            </div>
+          </div>
+          <div class="battle-section">
+            <div class="enemies-section">
+              <h3>Enemies</h3>
+              <canvas id="enemyEffectsCanvas"></canvas>
+              <div id="enemiesGrid" class="enemyGrid"></div>
+            </div>
+            <div class="party-section">
+              <h3>Party</h3>
+              <div id="partyDisplay" class="party-vertical"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    addEnemiesGridCSS();
+    addVerticalPartyCSS();
+    addDungeonModeCSS(); // 🏰 New dungeon styles
+    setupEnemyEffectsCanvas();
+    updateAreaPanel();
+    return;
+  }
+
+
   const currentArea = AREA_TEMPLATES[state.currentArea];
   if (!currentArea) {
     panel.innerHTML = "<p>No area selected</p>";
@@ -276,10 +332,24 @@ export function renderAreaPanel() {
 export function updateAreaPanel() {
   const currentArea = AREA_TEMPLATES[state.currentArea];
   if (!currentArea) return;
+  const heroLevel = partyState.heroLevel;
+  const currentWave = state.currentWave;
+  const enemyInfoElement = document.getElementById("enemyInfo");
 
+  let color;
+  if (heroLevel > currentWave + 5) {
+    color = 'green';
+  } else if (heroLevel >= currentWave - 4 && heroLevel <= currentWave + 4) {
+    color = 'yellow';
+  } else {
+    color = 'red';
+  }
+  enemyInfoElement.style.color = color;
+  enemyInfoElement.textContent = ` | Enemy Level: ${state.currentWave}`;
   //document.getElementById("areaName").textContent = currentArea.name;
   //document.getElementById("areaDescription").textContent = currentArea.description;
   document.getElementById("waveInfo").textContent = `Wave: ${state.areaWave}/${currentArea.maxWaves}`;
+  //document.getElementById("enemyInfo").textContent = ` | Enemy Level: ${state.currentWave}`;
   document.getElementById("waveTimerText").textContent = `${timeRemaining}s`;
   removeAllEnemyTooltips();
   const grid = document.getElementById("enemiesGrid");
@@ -834,6 +904,51 @@ function addEnemiesGridCSS() {
     .status.burn { background: #ff5722; }
     .status.freeze { background: #2196f3; }
     .status.stun { background: #ffc107; color: #333; }
+  `;
+  
+  document.head.appendChild(style);
+}
+
+function addDungeonModeCSS() {
+  if (document.getElementById('dungeon-mode-styles')) return;
+  
+  const style = document.createElement('style');
+  style.id = 'dungeon-mode-styles';
+  style.textContent = `
+    .dungeon-header {
+      background: linear-gradient(135deg, #4a148c 0%, #6a1b9a 100%);
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    
+    .dungeon-header #areaName {
+      font-size: 1.2em;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    .dungeon-stats {
+      margin-top: 6px;
+      font-size: 0.9em;
+      opacity: 0.9;
+    }
+    
+    .dungeon-timer {
+      background: linear-gradient(135deg, #4a148c 0%, #7b1fa2 100%);
+      border-color: #9c27b0;
+    }
+    
+    .dungeon-timer .timer-text {
+      color: #e1bee7;
+      font-weight: bold;
+    }
+    
+    .area-content .enemy-card.dungeon-enemy {
+      border: 2px solid #9c27b0;
+      box-shadow: 0 0 10px rgba(156, 39, 176, 0.3);
+    }
   `;
   
   document.head.appendChild(style);
