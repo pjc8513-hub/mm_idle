@@ -12,7 +12,7 @@ import { summonsState } from "./systems/summonSystem.js";
 import { updateSpellDock } from "./systems/dockManager.js";
 import { getBuildingLevel } from "./town.js";
 import { heroSpells } from "./content/heroSpells.js";
-import { dungeonState } from "./dungeonMode.js";
+import { dungeonState, getDungeonName } from "./dungeonMode.js";
 
 /* -------------------------
    Wave Timer Management (Delta Time)
@@ -244,7 +244,7 @@ export function renderAreaPanel() {
         <div class="area-main">
           <div class="area-header dungeon-header">
             <div id="areaName">🏰 Dungeon Mode - Depth: ${dungeonState.depth}</div>
-            <div class="dungeon-stats">
+            <div id="dungeonStats" class="dungeon-stats">
               Enemies Defeated: ${dungeonState.enemiesDefeated} | Best: ${dungeonState.maxDepth}
             </div>
           </div>
@@ -279,15 +279,14 @@ export function renderAreaPanel() {
     return;
   }
 
-
   const currentArea = AREA_TEMPLATES[state.currentArea];
   if (!currentArea) {
     panel.innerHTML = "<p>No area selected</p>";
     return;
   }
 
-  // Only render layout once
-  if (!panel.querySelector(".area-content") || state.newArea === true) {
+  // Only render layout once, unless dungeonExited flag is set
+  if (!panel.querySelector(".area-content") || state.newArea === true || state.dungeonExited === true) {
     panel.innerHTML = `
       <div class="area-content">
         <div class="area-main">
@@ -323,6 +322,9 @@ export function renderAreaPanel() {
     addEnemiesGridCSS();
     addVerticalPartyCSS();
     setupEnemyEffectsCanvas(); // Only once
+
+    // Reset dungeonExited flag after rendering
+    state.dungeonExited = false;
   }
 
   updateAreaPanel(); // Dynamic updates
@@ -330,43 +332,62 @@ export function renderAreaPanel() {
 
 
 export function updateAreaPanel() {
-  const currentArea = AREA_TEMPLATES[state.currentArea];
-  if (!currentArea) return;
-  const heroLevel = partyState.heroLevel;
-  const currentWave = state.currentWave;
-  const enemyInfoElement = document.getElementById("enemyInfo");
-
-  let color;
-  if (heroLevel > currentWave + 5) {
-    color = 'green';
-  } else if (heroLevel >= currentWave - 4 && heroLevel <= currentWave + 4) {
-    color = 'yellow';
+  const inDungeon = dungeonState.active;
+  //console.log("Updating area panel. In dungeon:", inDungeon);
+  if (inDungeon) {
+    const dungeonName = getDungeonName(dungeonState.depth);
+    const areaNameEl = document.getElementById("areaName");
+    if (areaNameEl) {
+      areaNameEl.textContent = `🏰 Dungeon Mode - ${dungeonName} - Depth: ${dungeonState.depth}`;
+    }
+    const dungeonStatsEl = document.getElementById("dungeonStats");
+    if (dungeonStatsEl) {
+      dungeonStatsEl.textContent = `Enemies Defeated: ${dungeonState.enemiesDefeated} | Best: ${dungeonState.maxDepth}`;
+    }
   } else {
-    color = 'red';
+    const currentArea = AREA_TEMPLATES[state.currentArea];
+    if (!currentArea) return;
+    const heroLevel = partyState.heroLevel;
+    const currentWave = state.currentWave;
+    const enemyInfoElement = document.getElementById("enemyInfo");
+
+    let color;
+    if (heroLevel > currentWave + 5) {
+      color = 'green';
+    } else if (heroLevel >= currentWave - 4 && heroLevel <= currentWave + 4) {
+      color = 'yellow';
+    } else {
+      color = 'red';
+    }
+    if (enemyInfoElement) {
+      enemyInfoElement.style.color = color;
+      enemyInfoElement.textContent = ` | Enemy Level: ${state.currentWave}`;
+    }
+    const waveInfoEl = document.getElementById("waveInfo");
+    if (waveInfoEl) {
+      waveInfoEl.textContent = `Wave: ${state.areaWave}/${currentArea.maxWaves}`;
+    }
   }
-  enemyInfoElement.style.color = color;
-  enemyInfoElement.textContent = ` | Enemy Level: ${state.currentWave}`;
-  //document.getElementById("areaName").textContent = currentArea.name;
-  //document.getElementById("areaDescription").textContent = currentArea.description;
-  document.getElementById("waveInfo").textContent = `Wave: ${state.areaWave}/${currentArea.maxWaves}`;
-  //document.getElementById("enemyInfo").textContent = ` | Enemy Level: ${state.currentWave}`;
-  document.getElementById("waveTimerText").textContent = `${timeRemaining}s`;
+  const waveTimerTextEl = document.getElementById("waveTimerText");
+  if (waveTimerTextEl) {
+    waveTimerTextEl.textContent = `${timeRemaining}s`;
+  }
   removeAllEnemyTooltips();
   const grid = document.getElementById("enemiesGrid");
   if (grid) {
     grid.innerHTML = renderEnemiesGrid();
-            for (let row = 0; row < 3; row++) {
-              for (let col = 0; col < 3; col++) {
-                const enemy = state.enemies[row] && state.enemies[row][col];
-                if (enemy) {
-                  const container = document.querySelector(`[data-enemy-id="${enemy.uniqueId}"]`);
-                  if (container) {
-                    attachEnemyTooltip(container, enemy);
-                    //console.log('Attached tooltip to enemy: ', enemy);
-                  }
-                }
-              }
-            }
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 3; col++) {
+        const enemy = state.enemies[row] && state.enemies[row][col];
+        if (enemy) {
+          const container = document.querySelector(`[data-enemy-id="${enemy.uniqueId}"]`);
+          if (container) {
+            attachEnemyTooltip(container, enemy);
+            //console.log('Attached tooltip to enemy: ', enemy);
+          }
+        }
+      }
+    }
   }
 
   const party = document.getElementById("partyDisplay");

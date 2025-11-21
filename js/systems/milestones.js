@@ -1,7 +1,8 @@
-import { state, partyState } from "./state.js";
-import { emit } from "./events.js";
+import { state, partyState } from "../state.js";
+import { emit } from "../events.js";
 
 // Milestone reward definitions - EXPAND THIS LATER!
+/*
 export const DUNGEON_MILESTONES = {
   20: {
     name: "Depths Survivor I",
@@ -61,6 +62,59 @@ export const dungeonProgress = {
     critDamage: 0,
     critChance: 0,
     allDamage: 0,
+    timeBonus: 0
+  },
+  dungeonEssence: 0, // Special currency from dungeons
+  unlockedSpells: [],
+  unlockedBuildings: [],
+  promotionTokens: 0
+};
+*/
+
+// Milestone reward definitions - EXPAND THIS LATER! 
+export const DUNGEON_MILESTONES = 
+{ 
+  10: 
+  { name: "Depths Survivor I", 
+    rewards: [ 
+      { type: "permanent_buff", stat: "bossDamage", value: 0.25 }, // +25% boss damage
+    ], 
+    description: "Reached depth 10 for the first time" }, 
+  20: 
+  { name: "Depths Survivor II", 
+    rewards: [ 
+      { type: "permanent_buff", stat: "critDamage", value: 0.10 }, // +10% crit damage 
+      ], 
+      description: "Reached depth 20 for the first time" 
+  },
+  30:
+  { name: "Depths Master I",
+    rewards:
+    [
+      { type: "permanent_buff", stat: "allDamage", value: 0.05 },
+    ],
+    description: "Reached depth 30 for the first time" 
+  }, 
+  40:
+  { name: "Depths Master II",
+    rewards:
+    [
+      { type: "permanent_buff", stat: "autoAttackDamage", value: 1 }, // +100% auto attack damage
+      { type: "permanent_buff", stat: "bossDamage", value: 0.50 },
+    ],
+    description: "Reached depth 40 for the first time"
+      // more 
+  },
+};
+
+export const dungeonProgress = 
+{ 
+  claimedMilestones: [], // Array of milestone depths claimed
+  permanentBuffs: {
+    bossDamage: 0,
+    critDamage: 0,
+    critChance: 0,
+    autoAttackDamage: 0,
     timeBonus: 0
   },
   dungeonEssence: 0, // Special currency from dungeons
@@ -172,9 +226,9 @@ function applyPermanentBuff(stat, value) {
       partyState.criticalChance += value;
       break;
 
-    case "allDamage":
-      partyState.heroBonuses.allDamage = 
-        (partyState.heroBonuses.allDamage || 0) + value;
+    case "autoAttackDamage":
+      partyState.heroBonuses.autoAttackDamage = 
+        (partyState.heroBonuses.autoAttackDamage || 0) + value;
       break;
 
     case "timeBonus":

@@ -1,6 +1,7 @@
 import { startDungeonMode, getDungeonStats, dungeonState } from "./dungeonMode.js";
 import { partyState } from "./state.js";
 import { on, emit } from "./events.js";
+import { DUNGEON_MILESTONES, dungeonProgress } from "./systems/milestones.js";
 
 export function initDungeonPanel() {
   // Re-render panel on dungeon events
@@ -92,7 +93,45 @@ export function renderDungeonPanel() {
             <span class="record-value">${stats.maxDepth}</span>
           </div>
         </div>
-        
+        <div class="dungeon-milestones">
+        <h3>🏆 Milestones</h3>
+        <div class="milestone-list">
+          ${Object.keys(DUNGEON_MILESTONES).map(depth => {
+            const m = DUNGEON_MILESTONES[depth];
+            const unlocked = dungeonProgress.claimedMilestones.includes(Number(depth));
+            
+            return `
+              <div class="milestone-item ${unlocked ? 'unlocked' : 'locked'}">
+                <span class="milestone-depth">Depth ${depth}</span>
+                <span class="milestone-name">${m.name}</span>
+                <span class="milestone-status">${unlocked ? '✓' : '✗'}</span>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+
+      <div class="dungeon-buffs">
+        <h3>🔮 Permanent Buffs</h3>
+        <ul class="buff-list">
+          ${Object.entries(dungeonProgress.permanentBuffs).map(([stat, value]) => {
+            if (!value) return "";
+            
+            const displayVal =
+              stat === "autoAttackDamage" ? `${value * 100}%`
+            : stat === "bossDamage" ? `+${Math.floor(value * 100)}%`
+            : stat === "critDamage" ? `+${Math.floor(value * 100)}%`
+            : stat === "critChance" ? `+${Math.floor(value * 100)}%`
+            : stat === "timeBonus" ? `+${value}`
+            : value;
+
+            const label = stat.replace(/([A-Z])/g, " $1");
+
+            return `<li><strong>${label}:</strong> ${displayVal}</li>`;
+          }).join("")}
+        </ul>
+      </div>
+
         ${enterDungeonBtnHtml}
       </div>
     `;
@@ -258,6 +297,62 @@ function addDungeonPanelCSS() {
       transform: translateY(-2px);
       box-shadow: 0 6px 12px rgba(0,0,0,0.3);
     }
+
+      .dungeon-milestones, .dungeon-buffs {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    border: 1px solid #ddd;
+  }
+
+  .dungeon-milestones h3, .dungeon-buffs h3 {
+    color: #7b1fa2;
+    margin-bottom: 10px;
+  }
+
+  .milestone-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .milestone-item {
+    display: grid;
+    grid-template-columns: 100px 1fr 30px;
+    padding: 8px;
+    border-radius: 6px;
+    background: #f8f4fc;
+    border: 1px solid rgba(156, 39, 176, 0.2);
+  }
+
+  .milestone-item.unlocked {
+    background: #e8f5e9;
+    border-color: #66bb6a;
+  }
+
+  .milestone-item.locked {
+    background: #fbe9e7;
+    border-color: #ff7043;
+  }
+
+  .milestone-name {
+    font-weight: bold;
+  }
+
+  .milestone-status {
+    font-size: 1.4em;
+  }
+
+  .buff-list {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .buff-list li {
+    padding: 6px 0;
+  }
+
     
     @media (max-width: 768px) {
       .dungeon-active-stats {

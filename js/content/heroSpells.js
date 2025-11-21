@@ -16,6 +16,7 @@ import { applyDOT } from "../systems/dotManager.js";
 import { spawnTornado } from "../systems/tornadoManager.js";
 import { addWaveTime } from '../area.js';
 import { renderPartyPanel } from '../party.js';
+import { dungeonState } from '../dungeonMode.js';
 
 export const heroSpells = [
     {
@@ -802,7 +803,7 @@ export const heroSpells = [
         delay: 3500,   // 1.5s delay
         isEcho: true
       });
-      renderPartyPanel();
+      if (!dungeonState.active) renderPartyPanel();
     }
 
     const targets = getEnemiesOnOuterRing();

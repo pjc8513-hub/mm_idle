@@ -4,8 +4,9 @@ import { emit, on } from "./events.js";
 import { ENEMY_TEMPLATES } from "./content/enemyDefs.js";
 import { createEnemy } from "./waveManager.js";
 import { stopAutoAttack, startAutoAttack, setTarget } from "./systems/combatSystem.js";
-import { addWaveTime, stopWaveTimer, startWaveTimer, updateEnemiesGrid, updateAreaPanel } from "./area.js";
+import { addWaveTime, stopWaveTimer, startWaveTimer, updateEnemiesGrid, updateAreaPanel, renderAreaPanel } from "./area.js";
 import { prefixes } from "./content/definitions.js";
+import { checkMilestoneRewards } from "./systems/milestones.js";
 
 // Dungeon enemy tiers - progressively unlock harder enemies
 const DUNGEON_ENEMY_TIERS = {
@@ -16,6 +17,27 @@ const DUNGEON_ENEMY_TIERS = {
   5: ["blueDragon", "werewolf", "thunderLizard", "minotaur", "giant", "flyingEye", "devilSpawn"]
 };
 
+// Dungeon names that change based on depth
+const DUNGEON_NAMES = {
+  1: "Goblin Watch",
+  10: "Shadow Guild Hideout",
+  20: "Temple of Baa",
+  30: "Corlagon's Estate",
+  40: "Hall of the Fire Lord",
+  50: "Temple of the Snake",
+  60: "Temple of the Fist",
+  70: "Temple of the Sun",
+  80: "Silver Helm Outpost",
+  90: "Ethric's Tomb",
+  100: "Castle Alamos",
+  110: "Icewind Keep",
+  120: "Warlord's Fortress",
+  130: "Tomb of VAARN",
+  140: "Supreme Temple of Baa",
+  150: "Devils Outpost",
+  160: "The Hive"
+};
+
 export const dungeonState = {
   active: false,
   enemiesDefeated: 0,
@@ -24,8 +46,22 @@ export const dungeonState = {
   savedState: null, // Store area state before entering dungeon
   currentTier: 1, // Which enemy tier is currently active
   DUNGEON_MAX_TIME: 10, // 10 second timer
-  REFILL_AMOUNT: 10 // Refill full timer on kill
+  REFILL_AMOUNT: 10, // Refill full timer on kill
+  enemiesSinceLastDepth: 0,
+  depthKillRequirement: 10 // starting requirement
 };
+
+// Get current dungeon name based on depth
+export function getDungeonName(depth) {
+  // Find the highest dungeon name threshold at or below current depth
+  const thresholds = Object.keys(DUNGEON_NAMES).map(Number).sort((a, b) => b - a);
+  for (const threshold of thresholds) {
+    if (depth >= threshold) {
+      return DUNGEON_NAMES[threshold];
+    }
+  }
+  return DUNGEON_NAMES[1]; // Default to first dungeon
+}
 
 // Utility: choose random prefix based on depth
 function getRandomPrefix(depth) {
@@ -65,25 +101,43 @@ export function initDungeonMode() {
   // Listen for enemy defeats in dungeon mode
   on("enemyDefeated", ({ enemy }) => {
     if (!dungeonState.active) return;
-    
+      
     dungeonState.enemiesDefeated++;
-    dungeonState.depth++;
-    
-    // Update max depth tracker
-    if (dungeonState.depth > dungeonState.maxDepth) {
-      dungeonState.maxDepth = dungeonState.depth;
+    dungeonState.enemiesSinceLastDepth++;
+
+    // Check if player has met the kill requirement to advance depth
+    if (dungeonState.enemiesSinceLastDepth >= dungeonState.depthKillRequirement) {
+      dungeonState.enemiesSinceLastDepth = 0;
+      dungeonState.depth++;
+      checkMilestoneRewards(dungeonState.depth);
+
+      // Gradually increase requirement to simulate larger dungeons
+      //dungeonState.depthKillRequirement = Math.ceil(dungeonState.depthKillRequirement * 1.03);
+      // Diablo-rift-like dungeon growth
+      if (dungeonState.depth % 5 === 0) {
+        dungeonState.depthKillRequirement += 5;
+      }
+      // or use: +1, +2 occasionally, etc.
+
+      // Update max depth
+      if (dungeonState.depth > dungeonState.maxDepth) {
+        dungeonState.maxDepth = dungeonState.depth;
+      }
+
+      emit("dungeonDepthUp", { depth: dungeonState.depth });
     }
-    
+
     // Refill timer on kill
     addWaveTime(dungeonState.REFILL_AMOUNT);
-    
-    // Spawn new enemy in the killed enemy's position
-    const { row, col } = enemy.position;
-    spawnDungeonEnemy(row, col);
+
+    // Reinforcements
+    handleDungeonReinforcements();
+
     updateAreaPanel();
     updateEnemiesGrid();
     emit("dungeonEnemyDefeated", { depth: dungeonState.depth, enemy });
   });
+
   
   // Handle dungeon timeout
   on("waveTimedOut", () => {
@@ -93,6 +147,35 @@ export function initDungeonMode() {
   });
   
   console.log("Dungeon Mode initialized");
+}
+
+// Handle enemy reinforcements - enemies step forward, new spawns in back
+function handleDungeonReinforcements() {
+  // Step 1: Shift all enemies forward (toward row 2)
+  for (let col = 0; col < 3; col++) {
+    // Shift from front to back
+    for (let row = 2; row > 0; row--) {
+      if (state.enemies[row][col] === null && state.enemies[row - 1][col] !== null) {
+        // Move enemy forward
+        state.enemies[row][col] = state.enemies[row - 1][col];
+        state.enemies[row][col].position = { row, col };
+        state.enemies[row - 1][col] = null;
+      }
+    }
+  }
+  
+  // Step 2: Count empty slots in back row (row 0)
+  const emptyBackSlots = [];
+  for (let col = 0; col < 3; col++) {
+    if (state.enemies[0][col] === null) {
+      emptyBackSlots.push(col);
+    }
+  }
+  
+  // Step 3: Spawn new enemies in empty back row slots
+  emptyBackSlots.forEach(col => {
+    spawnDungeonEnemy(0, col);
+  });
 }
 
 // Start dungeon mode
@@ -126,16 +209,19 @@ export function startDungeonMode() {
   
   // Spawn initial dungeon grid (9 enemies)
   spawnInitialDungeonWave();
-  
+
   // Start dungeon timer (will use modified max time)
   stopAutoAttack();
   startWaveTimer();
   startAutoAttack();
   setTarget(2, 0);
-  
+
+  // Immediately update area panel to dungeon mode
+  renderAreaPanel();
+
   emit("dungeonModeStarted");
   console.log("🏰 Dungeon Mode Started!");
-  
+
   return true;
 }
 
@@ -175,8 +261,11 @@ function spawnDungeonEnemy(row, col) {
   // Mark as dungeon enemy (optional, for special behavior)
   enemy.isDungeonEnemy = true;
   
-  // Add depth indicator to name
-  enemy.name = `[Depth ${dungeonState.depth}] ${enemy.name}`;
+  // Get current dungeon name
+  const dungeonName = getDungeonName(dungeonState.depth);
+  
+  // Add dungeon name to enemy name (instead of depth)
+  enemy.name = `[${dungeonName}] ${enemy.name}`;
   
   // Place enemy
   state.enemies[row][col] = enemy;
@@ -187,16 +276,16 @@ function spawnDungeonEnemy(row, col) {
 // End dungeon mode and return to saved state
 export function endDungeonMode() {
   if (!dungeonState.active) return;
-  
+
   stopAutoAttack();
   stopWaveTimer();
-  
+
   const finalDepth = dungeonState.depth;
   const enemiesDefeated = dungeonState.enemiesDefeated;
-  
+
   // Calculate rewards
   const rewards = calculateDungeonRewards(finalDepth, enemiesDefeated);
-  
+
   // Restore saved state
   if (dungeonState.savedState) {
     state.currentArea = dungeonState.savedState.currentArea;
@@ -204,33 +293,38 @@ export function endDungeonMode() {
     state.currentWave = dungeonState.savedState.currentWave;
     state.baseLevel = dungeonState.savedState.baseLevel;
   }
-  
+
   // Clear dungeon enemies
   state.enemies = [
     [null, null, null],
     [null, null, null],
     [null, null, null]
   ];
-  
+
+  // Deactivate dungeon mode before rendering the area panel
+  dungeonState.active = false;
+
+  // Set dungeonExited flag to force re-rendering
+  state.dungeonExited = true;
+
+  // Immediately update area panel to normal mode
+  renderAreaPanel();
+
   // Award rewards
   applyDungeonRewards(rewards);
-  
-  // Deactivate dungeon mode
-  dungeonState.active = false;
-  
+
   // Spawn normal wave
   emit("dungeonModeEnded", { 
     finalDepth, 
     enemiesDefeated,
     rewards 
   });
-  
   // Restart area wave after short delay
   setTimeout(() => {
     emit("areaReset");
     startAutoAttack();
   }, 2000);
-  
+
   console.log(`🏰 Dungeon Mode Ended! Depth: ${finalDepth}, Enemies: ${enemiesDefeated}`);
 }
 
@@ -275,7 +369,8 @@ export function getDungeonStats() {
     depth: dungeonState.depth,
     maxDepth: dungeonState.maxDepth,
     enemiesDefeated: dungeonState.enemiesDefeated,
-    currentTier: dungeonState.currentTier
+    currentTier: dungeonState.currentTier,
+    currentDungeonName: getDungeonName(dungeonState.depth)
   };
 }
 
@@ -283,3 +378,4 @@ export function getDungeonStats() {
 window.startDungeonMode = startDungeonMode;
 window.endDungeonMode = endDungeonMode;
 window.getDungeonStats = getDungeonStats;
+window.getDungeonName = getDungeonName;

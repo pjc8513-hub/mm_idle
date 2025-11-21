@@ -325,7 +325,8 @@ function calculateDamage(attacker, target) {
   const critChance = attacker.stats.criticalChance || 0;
   if (Math.random() < critChance) {
     isCritical = true;
-    baseDamage *= COMBAT_CONFIG.CRITICAL_DAMAGE_MULTIPLIER;
+    const critBonus = partyState.heroBonuses.criticalDamage || 0;
+    baseDamage *= COMBAT_CONFIG.CRITICAL_DAMAGE_MULTIPLIER * (1 + critBonus);
   }
   
   // convert damage to resonance element damage
@@ -382,6 +383,14 @@ function calculateDamage(attacker, target) {
     }
   }
   
+  // Boss damage bonus from dungeon rewards
+  if (target.isBoss && partyState) {
+    const bossDmgBonus = partyState.heroBonuses.bossDamage || 0;
+    baseDamage *= (1 + bossDmgBonus);
+  }
+  
+  const autoAttackBonus = partyState.heroBonuses.autoAttackDamage || 0;
+  baseDamage *= (1 + autoAttackBonus);
   
   const finalDamage = Math.max(1, Math.floor(baseDamage * damageMultiplier));
   
@@ -423,7 +432,8 @@ export function calculateSkillDamage(attacker, resonance, skillDamageRatio, targ
   const critChance = attacker.stats.criticalChance || 0;
   if (Math.random() < critChance) {
     isCritical = true;
-    baseDamage *= COMBAT_CONFIG.CRITICAL_DAMAGE_MULTIPLIER;
+    const critBonus = partyState.heroBonuses.criticalDamage || 0;
+    baseDamage *= COMBAT_CONFIG.CRITICAL_DAMAGE_MULTIPLIER * (1 + critBonus);
   }
 
   // console.log('[Skill Damage] baseDamage:', baseDamage, 'skillDamageRatio:', skillDamageRatio);
@@ -444,6 +454,11 @@ export function calculateSkillDamage(attacker, resonance, skillDamageRatio, targ
   );
 
   const levelMultiplier = getLevelDampening(attacker.level, target.level);
+    // Boss damage bonus from dungeon rewards
+  if (target.isBoss && partyState) {
+    const bossDmgBonus = partyState.heroBonuses.bossDamage || 0;
+    skillDamage *= (1 + bossDmgBonus);
+  }
 
   const finalDamage = Math.max(
     1,
@@ -490,7 +505,8 @@ export function calculateHeroSpellDamage(resonance, skillDamageRatio, target) {
   const critChance = partyState.heroBaseStats.criticalChance || 0;
   if (Math.random() < critChance) {
     isCritical = true;
-    baseDamage *= COMBAT_CONFIG.CRITICAL_DAMAGE_MULTIPLIER;
+    const critBonus = partyState.heroBonuses.criticalDamage || 0;
+    baseDamage *= COMBAT_CONFIG.CRITICAL_DAMAGE_MULTIPLIER * (1 + critBonus);
   }
 
   // console.log('[Skill Damage] baseDamage:', baseDamage, 'skillDamageRatio:', skillDamageRatio);
@@ -509,6 +525,12 @@ export function calculateHeroSpellDamage(resonance, skillDamageRatio, target) {
     partyState.heroBaseStats.elementalPenetration || 0,
     partyState.heroBaseStats.weaknessBonus || 0
   );
+
+  // Boss damage bonus from dungeon rewards
+  if (target.isBoss && partyState) {
+    const bossDmgBonus = partyState.heroBonuses.bossDamage || 0;
+    skillDamage *= (1 + bossDmgBonus);
+  }
 
   const finalDamage = Math.max(1, Math.floor(skillDamage * elementalMultiplier));
 

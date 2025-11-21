@@ -14,6 +14,7 @@ import { applyVisualEffect } from "../systems/effects.js";
 //import { createVampireMist, createRadiantBurst, createRadiantPulse, spawnRadiantBurst } from "../systems/radiantEffect.js";
 import { heroSpells } from "./heroSpells.js";
 import { addHeroBonus, getAbilityDamageRatio, updateTotalStats } from "../systems/math.js";
+import { dungeonState } from "../dungeonMode.js";
 
 on("summonExpired", handleSummonExpired);
 
@@ -108,7 +109,7 @@ export const abilities = [
               damageEnemy(enemy, skillDamageObject, this.resonance);
               handleSkillAnimation("followThrough", row, col);
               showFloatingDamage(row, col, skillDamageObject);
-              if (enemy.hp <= 0) renderAreaPanel(); 
+              if (!dungeonState.active && enemy.hp <= 0) renderAreaPanel(); 
           });
         }
           
@@ -144,7 +145,7 @@ export const abilities = [
               damageEnemy(enemy, skillDamageObject, this.resonance);
               handleSkillAnimation("flamePillar", row, col);
               showFloatingDamage(row, col, skillDamageObject); // show floating text
-              //if (enemy.hp <= 0) renderAreaPanel();
+              //if (!dungeonState.active && enemy.hp <= 0) renderAreaPanel();
           });
       }
         
@@ -640,7 +641,7 @@ export const abilities = [
               enemy);
             damageEnemy(enemy, damagePayload, resonance);
             showFloatingDamage(enemy.position.row, enemy.position.col, damagePayload);
-            if (enemy.hp <= 0) renderAreaPanel();
+            if (!dungeonState.active && enemy.hp <= 0) renderAreaPanel();
             //console.log(`[Soul Detonation] Triggered by ${attacker.name}, dealt ${damagePayload.damage} damage based on undead counters.`);
             // Reset undead counters
             enemy.counters["undead"] = 0;
@@ -882,7 +883,7 @@ export const abilities = [
               damageEnemy(enemy, skillDamageObject, this.resonance);
               handleSkillAnimation("splash", row, col);
               showFloatingDamage(row, col, skillDamageObject);
-              if (enemy.hp <= 0) renderAreaPanel();
+              if (!dungeonState.active && enemy.hp <= 0) renderAreaPanel();
             });
           },
       },
@@ -1025,7 +1026,7 @@ export const abilities = [
                 damageEnemy(enemy, skillDamageObject, this.resonance);
                 handleSkillAnimation("feastOfAges", enemy.position.row, enemy.position.col);
                 showFloatingDamage(enemy.position.row, enemy.position.col, skillDamageObject);
-                if (enemy.hp <= 0) renderAreaPanel();
+                if (!dungeonState.active && enemy.hp <= 0) renderAreaPanel();
               }
             });
         }
@@ -1066,7 +1067,7 @@ export const abilities = [
                 damageEnemy(enemy, skillDamageObject, this.resonance);
                 handleSkillAnimation("splash", enemy.position.row, enemy.position.col);
                 showFloatingDamage(enemy.position.row, enemy.position.col, skillDamageObject);
-                if (enemy.hp <= 0) renderAreaPanel();
+                if (!dungeonState.active && enemy.hp <= 0) renderAreaPanel();
               }
             });
         }
@@ -1153,7 +1154,7 @@ export const abilities = [
             damageEnemy(enemy, damagePayload, resonance);
             handleSkillAnimation("flamePillar", row, col);
             showFloatingDamage(enemy.position.row, enemy.position.col, damagePayload);
-            if (enemy.hp <= 0) renderAreaPanel();
+            if (!dungeonState.active && enemy.hp <= 0) renderAreaPanel();
             //console.log(`[Soul Detonation] Triggered by ${attacker.name}, dealt ${damagePayload.damage} damage based on undead counters.`);
             // Reset undead counters
             enemy.counters = {};

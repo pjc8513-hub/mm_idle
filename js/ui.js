@@ -80,6 +80,13 @@ on("healTriggered", ({ amount }) => {
   setTimeout(() => timerBar.classList.remove("heal-pulse"), 1200);
 });
 
+  on("milestoneAwarded", (milestones) => {
+    console.log("Milestones awarded:", milestones);
+    milestones.forEach(m => {
+      floatingTextManager.showAchievement(`Milestone: ${m.description}!`);
+    });
+  });
+
   // show default
   document.getElementById("game").classList.add("area-bg");
   showPanel("panelArea");

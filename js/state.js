@@ -18,7 +18,9 @@ export const partyState = {
   // External bonuses (blacksmith, upgrades, etc.)
   heroBonuses: { attack: 0, defense: 0, hp: 0,
     physical: 0, fire: 0, water: 0, air: 0, earth: 0,
-    poison: 0, light: 0, dark: 0, undead: 0
+    poison: 0, light: 0, dark: 0, undead: 0,
+    bossDamage: 0, critDamage: 0, criticalChance: 0,
+    autoAttackDamage: 0
    }, // From buildings, items, etc.
   
   // Class management
@@ -44,6 +46,8 @@ export const partyState = {
   //activeHeroSpells: [], moved to state(?)
   activeEchoes: []
 };
+
+
 export const state = {
   tick: 0,
   resources: {
@@ -168,3 +172,8 @@ export const quickSpellState = {
 export function initState() {
   console.log("Game state initialized");
 }
+
+// debugging command to show partyState.heroBonuses
+window.showHeroBonuses = function() {
+  console.log(partyState.heroBonuses);
+};

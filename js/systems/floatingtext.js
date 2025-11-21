@@ -56,6 +56,17 @@ class FloatingText {
       } else {
         this.scale = 1.2;
       }
+    }else if (this.type === 'achievement') {
+      // Achievement toast: big, slow float
+      if (progress < 0.25) {
+        this.scale = 1 + (progress / 0.25) * 0.5; // Up to 1.5x
+      } else if (progress > 0.75) {
+        this.scale = 1.5 - ((progress - 0.75) / 0.25) * 0.5;
+      } else {
+        this.scale = 1.5;
+      }
+
+      this.y = this.startY - (progress * 30); // Slight rise
     } else {
       // Status text (WEAK/RESIST): medium bounce
       if (progress < 0.2) {
@@ -65,7 +76,7 @@ class FloatingText {
       } else {
         this.scale = 1.3;
       }
-    }
+    } 
 
     return true; // Continue animating
   }
@@ -179,6 +190,27 @@ class FloatingTextManager {
   clear() {
     this.texts = [];
   }
+  /**
+   * Show a global achievement toast
+   * Appears centered at top of canvas
+   */
+  showAchievement(message) {
+    if (!this.canvas) return;
+    
+    const x = this.canvas.width / 2;
+    const y = 80; // Top region
+    
+    this.addText(
+      message,
+      x,
+      y,
+      '#FFD700',      // Gold color
+      2000,           // Duration
+      36,             // Font size
+      'achievement'   // New type for special scaling
+    );
+}
+
 }
 
 // Export singleton instance

@@ -3,6 +3,7 @@ import { abilities } from "../content/abilities.js";
 import { damageEnemy } from "../waveManager.js";
 import { floatingTextManager } from "./floatingtext.js";
 import { renderAreaPanel } from "../area.js";
+import { dungeonState } from "../dungeonMode.js";
 
 // DOT Configuration
 const DOT_TICK_INTERVAL = 1.0; // Apply DOT damage every 1 second
@@ -118,7 +119,7 @@ function applyDOTDamage(enemy, row, col, deltaTime) {
     elementalMatchup: null
   };
     damageEnemy(enemy, damageObject, type);
-    if (enemy.hp <= 0) {
+    if (!dungeonState.active && enemy.hp <= 0) {
       renderAreaPanel();
     }
     // Update elapsed time
