@@ -1,6 +1,6 @@
 // area.js
 import { attachEnemyTooltip, removeAllEnemyTooltips } from "./tooltip.js";
-import { state, partyState, spellHandState } from "./state.js";
+import { state, uiState, partyState, spellHandState } from "./state.js";
 import { emit, on } from "./events.js";
 import { AREA_TEMPLATES } from "./content/areaDefs.js";
 import { ENEMY_TEMPLATES } from "./content/enemyDefs.js";
@@ -183,6 +183,12 @@ export function initAreaPanel() {
       }
     }
   }));
+
+  on("resumeWaveTimer", () => {
+    if (state.activeWave) {
+      startWaveTimer();
+    }
+  });
   
   on ("waveStarted", () => {
     updateAreaPanel();
@@ -278,7 +284,7 @@ export function renderAreaPanel() {
     updateAreaPanel();
     return;
   }
-
+  console.log("Rendering area panel for area:", state.currentArea);
   const currentArea = AREA_TEMPLATES[state.currentArea];
   if (!currentArea) {
     panel.innerHTML = "<p>No area selected</p>";
@@ -291,7 +297,8 @@ export function renderAreaPanel() {
       <div class="area-content">
         <div class="area-main">
           <div class="area-header">
-            <div id="areaName">${currentArea.name} |
+            <div id="areaNameHead">
+              <span id="areaNameText">${currentArea.name} | </span>
               <span id="waveInfo">Area: ${state.areaWave}/${currentArea.maxWaves} | </span>
               <span id="enemyInfo">Enemy level: ${state.currentWave} </span>
             </div>
@@ -336,7 +343,7 @@ export function updateAreaPanel() {
   //console.log("Updating area panel. In dungeon:", inDungeon);
   if (inDungeon) {
     const dungeonName = getDungeonName(dungeonState.depth);
-    const areaNameEl = document.getElementById("areaName");
+    const areaNameEl = document.getElementById("areaNameText");
     if (areaNameEl) {
       areaNameEl.textContent = `🏰 Dungeon Mode - ${dungeonName} - Depth: ${dungeonState.depth}`;
     }
@@ -350,6 +357,7 @@ export function updateAreaPanel() {
     const heroLevel = partyState.heroLevel;
     const currentWave = state.currentWave;
     const enemyInfoElement = document.getElementById("enemyInfo");
+    const areaNameEl = document.getElementById("areaNameText");
 
     let color;
     if (heroLevel > currentWave + 5) {
@@ -359,11 +367,17 @@ export function updateAreaPanel() {
     } else {
       color = 'red';
     }
+    
+    if (areaNameEl) {
+      areaNameEl.textContent = `${currentArea.name} | `;
+    }
+      
     if (enemyInfoElement) {
       enemyInfoElement.style.color = color;
       enemyInfoElement.textContent = ` | Enemy Level: ${state.currentWave}`;
     }
     const waveInfoEl = document.getElementById("waveInfo");
+    //console.log("Updating wave info element:", waveInfoEl);
     if (waveInfoEl) {
       waveInfoEl.textContent = `Wave: ${state.areaWave}/${currentArea.maxWaves}`;
     }
@@ -1320,8 +1334,8 @@ export function setupEnemyEffectsCanvas() {
   }
 
   // Just initialize - don't start a loop
-  state.ui = state.ui || {};
-  state.ui.spriteAnimations = new spriteAnimationManager(ctx, 64);
+  uiState.ui = uiState.ui || {};
+  uiState.ui.spriteAnimations = new spriteAnimationManager(ctx, 64);
   
   // console.log('[Canvas] Sprite animation manager initialized');
 }

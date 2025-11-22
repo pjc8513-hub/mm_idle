@@ -1,5 +1,5 @@
 // animations.js
-import { state } from '../state.js';
+import { state, uiState } from '../state.js';
 import { emit, on } from '../events.js';
 import { getEnemyCanvasPosition } from "../area.js";
 import { abilities } from "../content/abilities.js";
@@ -41,8 +41,8 @@ export function handleCoinAnimation(position) {
     return;
   }
   
-  if (state.ui?.spriteAnimations && pos) {
-    state.ui.spriteAnimations.playAnimation({
+  if (uiState.ui?.spriteAnimations && pos) {
+    uiState.ui.spriteAnimations.playAnimation({
       targets: [pos],
       spritePath: "../assets/images/sprites/coin_drops2.png", 
       frameWidth: 65,
@@ -65,13 +65,13 @@ export function handleSkillAnimation(id, row, col) {
     return;
   }
   
-  if (state.ui?.spriteAnimations && pos) {
+  if (uiState.ui?.spriteAnimations && pos) {
     const skillSpritePath = abilities.find((a) => a.id === id)?.spritePath;
     // console.log("[followThrough animation] spritePath: ", skillSpritePath);
     
     if (!skillSpritePath) return;
     
-    state.ui.spriteAnimations.playAnimation({
+    uiState.ui.spriteAnimations.playAnimation({
       targets: [pos],
       spritePath: skillSpritePath, 
       frameWidth: 80,

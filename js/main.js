@@ -9,7 +9,7 @@ import { startGameLoop } from "./loop.js";
 import { initRender } from "./render.js";
 import { initPartyPanel } from "./party.js";
 import { initBuildingPanel } from "./town.js";
-import { initAreaPanel } from "./area.js";
+import { initAreaPanel, renderAreaPanel } from "./area.js";
 import { initWaveManager } from "./waveManager.js";
 import { initMath } from "./systems/math.js";
 import { initCombatSystem } from "./systems/combatSystem.js";
@@ -22,8 +22,10 @@ import { initRunePanel } from "./runePanel.js";
 import { initDungeonMode } from "./dungeonMode.js";
 import { initDungeonPanel } from "./dungeonPanel.js";
 import { initDungeonMilestones } from "./systems/milestones.js";
+import { loadGame } from "./systems/saveSystem.js";
+import { logMessage } from "./systems/log.js";
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
   // Initialize all systems
   initState();
   initUI();
@@ -43,6 +45,13 @@ window.addEventListener("DOMContentLoaded", () => {
   initDungeonMode();
   initDungeonPanel();
   initDungeonMilestones();
+
+  // Load game state if available
+  const loaded = await loadGame();
+  if (!loaded) console.log("No save file found — starting fresh.");
+  if (loaded) {logMessage("Game loaded from save.");
+    renderAreaPanel();
+  }
   
   // Start the game loop
   startGameLoop();

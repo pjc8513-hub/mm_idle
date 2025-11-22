@@ -1,4 +1,4 @@
-import { state, partyState, spellHandState } from "./state.js";
+import { state, uiState, partyState, spellHandState } from "./state.js";
 import { renderResourceBar } from "./render.js";
 import { emit } from "./events.js";
 import { renderPartyPanel } from "./party.js";
@@ -15,6 +15,8 @@ import { uiAnimations } from './systems/animations.js';
 import { updateSummonTimers, updateWaveTimer } from "./area.js";
 import { updateVisualEffects } from "./systems/effects.js";
 import { updateTornados } from "./systems/tornadoManager.js";
+import { autosaveUpdate } from "./systems/saveSystem.js";
+import { spawnWave } from "./waveManager.js";
 //import { updateRadiantEffects } from "./systems/radiantEffect.js";
 //import { calculateGemIncome } from "./incomeSystem.js";
 
@@ -23,16 +25,16 @@ import { updateTornados } from "./systems/tornadoManager.js";
 
 let lastUpdate = Date.now();
 
-export function startGameLoop() {
-  function loop() {
+export async function startGameLoop() {
+  async function loop() {
     const now = Date.now();
     const delta = (now - lastUpdate) / 1000; // seconds passed
     lastUpdate = now;
     // Initialize floating text manager
     floatingTextManager.initialize('enemyEffectsCanvas');
-
     update(delta);
     if (state.activeWave) updateSkills(delta);
+    await autosaveUpdate(delta);
     render(delta); // Make sure this is called!
     requestAnimationFrame(loop);
   }
@@ -105,8 +107,9 @@ function update(delta) {
   if (spellHandState.activeTornado) updateTornados(delta);
 
   // Update sprite animations
-  if (state.ui?.spriteAnimations) {
-    state.ui.spriteAnimations.update();
+  if (uiState.ui?.spriteAnimations) {
+    //console.log("[loop] updating sprite animations", uiState.ui);
+    uiState.ui.spriteAnimations.update();
   }
 
   // Update floating text animations
@@ -170,8 +173,8 @@ function render(delta) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
   // Draw everything
-  if (state.ui?.spriteAnimations) {
-    state.ui.spriteAnimations.draw();
+  if (uiState.ui?.spriteAnimations) {
+    uiState.ui.spriteAnimations.draw();
   }
 
   

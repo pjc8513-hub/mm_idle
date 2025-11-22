@@ -49,6 +49,8 @@ export const partyState = {
 
 
 export const state = {
+  _currentArea: null,
+
   tick: 0,
   resources: {
     gold: 10000, //300 / 5000
@@ -102,11 +104,14 @@ export const state = {
     slots: [null, null, null, null], // Each slot holds a class ID or null
     goldIncomeMultiplier: 1.0 // Starts at 1.0, increases by 0.2 per assignment
   },
-  //libraryUpgrade: 'fire',
   spells: [],
   activeHeroSpells: [],
   equipment: [],
-  currentArea: "newSorpigal",
+  get currentArea() {
+    return this._currentArea || "newSorpigal";},
+  set currentArea(areaId) {
+    this._currentArea = areaId;
+  },
   currentWave: 1,
   areaWave: 1,
   baseLevel: 1,
@@ -124,10 +129,12 @@ export const state = {
   combatLog: [],
   lastAction: null,
 
-  ui: {}, // Placeholder for UI state and animations
-
   activePanel: "panelArea"
   
+};
+
+export const uiState = {
+  spriteAnimations: {} // will hold SpriteAnimationManager instance
 };
 
 export const runeState = {

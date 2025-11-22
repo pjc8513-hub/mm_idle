@@ -1,5 +1,6 @@
 import { state, partyState } from "../state.js";
 import { emit } from "../events.js";
+import { saveGame } from "./saveSystem.js";
 
 // Milestone reward definitions - EXPAND THIS LATER!
 /*
@@ -155,7 +156,8 @@ export function checkMilestoneRewards(currentDepth) {
 
   if (awarded.length > 0) {
     emit("milestoneAwarded", awarded);
-    saveDungeonProgress(); // Persist to localStorage
+    //saveDungeonProgress(); // Persist to localStorage
+    saveGame();
   }
 
   return awarded;
@@ -271,6 +273,7 @@ export function getUnclaimedMilestones(currentMaxDepth) {
 }
 
 // Save/Load from localStorage
+/*
 function saveDungeonProgress() {
   try {
     localStorage.setItem('dungeonProgress', JSON.stringify(dungeonProgress));
@@ -297,10 +300,11 @@ export function loadDungeonProgress() {
     console.warn("Failed to load dungeon progress:", e);
   }
 }
+*/
 
 // Initialize on game start
 export function initDungeonMilestones() {
-  loadDungeonProgress();
+ // loadDungeonProgress();
   
   // Check for milestone rewards when dungeon ends
   // (Already tracking maxDepth in dungeonState)
@@ -395,6 +399,7 @@ window.showDungeonProgress = () => {
 
 window.resetMilestones = () => {
   dungeonProgress.claimedMilestones = [];
-  saveDungeonProgress();
+  saveGame();
+  //saveDungeonProgress();
   console.log("✅ Milestones reset!");
 };
