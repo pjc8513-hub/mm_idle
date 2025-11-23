@@ -7,6 +7,7 @@ import { stopAutoAttack, startAutoAttack, setTarget } from "./systems/combatSyst
 import { addWaveTime, stopWaveTimer, startWaveTimer, updateEnemiesGrid, updateAreaPanel, renderAreaPanel } from "./area.js";
 import { prefixes } from "./content/definitions.js";
 import { checkMilestoneRewards } from "./systems/milestones.js";
+import { addHeroExp } from "./questManager.js";
 
 // Dungeon enemy tiers - progressively unlock harder enemies
 const DUNGEON_ENEMY_TIERS = {
@@ -45,8 +46,8 @@ export const dungeonState = {
   maxDepth: 0, // Best run tracker
   savedState: null, // Store area state before entering dungeon
   currentTier: 1, // Which enemy tier is currently active
-  DUNGEON_MAX_TIME: 10, // 10 second timer
-  REFILL_AMOUNT: 10, // Refill full timer on kill
+  DUNGEON_MAX_TIME: 7, // 7 second timer
+  REFILL_AMOUNT: 7, // Refill full timer on kill
   enemiesSinceLastDepth: 0,
   depthKillRequirement: 10 // starting requirement
 };
@@ -196,9 +197,9 @@ export function startDungeonMode() {
   
   // Reset dungeon stats
   dungeonState.active = true;
-  dungeonState.enemiesDefeated = 0;
-  dungeonState.depth = 0;
-  dungeonState.currentTier = 1;
+  //dungeonState.enemiesDefeated = 0;
+  //dungeonState.depth = 0;
+  //dungeonState.currentTier = 1;
   
   // Clear existing enemies
   state.enemies = [
@@ -337,10 +338,12 @@ function calculateDungeonRewards(depth, enemiesDefeated) {
   const totalGold = (enemiesDefeated * baseGoldPerEnemy) + depthBonus + streakBonus;
   
   // Future: Add more reward types
+  const dungeonEssence = Math.floor(enemiesDefeated / 5); // 1 essence per 5 enemies
   return {
     gold: totalGold,
     gems: Math.floor(depth / 10), // 1 gem per 10 depth
-    exp: enemiesDefeated * 5
+    exp: enemiesDefeated * 5,
+    essence: dungeonEssence
   };
 }
 
@@ -357,7 +360,15 @@ function applyDungeonRewards(rewards) {
   }
   
   // Future: Add XP system
-  // if (rewards.exp > 0) { ... }
+  if (rewards.exp > 0) {
+    addHeroExp(rewards.exp);
+    emit("heroExpChanged", partyState.heroExp);
+  }
+  if (rewards.essence > 0) {
+    state.resources.dungeonEssence = (state.resources.dungeonEssence || 0) + rewards.essence;
+    emit("dungeonEssenceChanged", state.resources.dungeonEssence);
+  }
+  
   
   console.log("💰 Dungeon Rewards:", rewards);
 }

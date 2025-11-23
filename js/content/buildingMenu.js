@@ -349,6 +349,137 @@ shadowGuild: (building) => {
   `;
 },
 
+dungeonShrine: (building) => {
+  const b = state.buildings.find(b => b.id === building.id);
+  const buildingLevel = b ? b.level : 0;
+
+  if (buildingLevel <= 0) {
+    return `
+      <h3>Dungeon Shrine</h3>
+      <p>This building hasn't been constructed yet.</p>
+      <p>Build it first in order to receive random blessings!</p>
+    `;
+  }
+
+  const blessings = [
+    { id: 'hunter', label: 'Hunter', icon: 'assets/images/icons/flash.png', color: '#52474eff' },
+    { id: 'slayer', label: 'Slayer', icon: 'assets/images/icons/inferno.png', color: '#4dbd56ff' },
+    { id: 'banishing', label: 'Banishing', icon: 'assets/images/icons/brilliant.png', color: '#a0399bff' },
+    { id: 'alchemy' , label: 'Alchemy', icon: 'assets/images/icons/starfall.webp', color: '#a0a039ff' },
+    { id: 'excommunication', label: 'Excommunication', icon: 'assets/images/icons/moonbeam.png', color: '#39a0a0ff' },
+  ];
+
+  const blessingCards = blessings.map(blessing => {
+    const modifier = partyState.blessings[blessing.id] || 1;
+    const bonusPercent = ((modifier - 1) * 100).toFixed(0);
+
+    return `
+      <div class="blessing-card" style="border-color: ${blessing.color};">
+        <div class="blessing-icon-small">
+          <img src="${blessing.icon}" alt="${blessing.label}" />
+        </div>
+        <div class="blessing-name">${blessing.label}</div>
+        <div class="blessing-bonus">+${bonusPercent}%</div>
+      </div>
+    `;
+  }).join('');
+
+  // Blessing cost scaling
+  const baseCost = 25;
+  const blessingLevel = partyState.blessingLevel || 0;
+  const blessingCost = Math.floor(baseCost * Math.pow(1.35, blessingLevel));
+  const currentEssence = state.resources.dungeonEssence;
+  const canPurchase = currentEssence >= blessingCost;
+
+  return `
+    <h3>Dungeon Shrine</h3>
+
+    <p class="essence-display">
+      Dungeon Essence: <span class="essence-amount">${currentEssence}</span>
+    </p>
+
+    <p class="building-description">
+      Receive a random blessing to empower your party.
+    </p>
+
+    <div class="blessings-container small">
+      ${blessingCards}
+    </div>
+
+    <p class="blessing-cost">Cost: ${blessingCost} Essence</p>
+
+    <button 
+      class="blessing-upgrade-btn"
+      style="background: ${canPurchase ? '#4ade80' : '#555'};"
+      onclick="receiveBlessing()"
+      ${!canPurchase ? 'disabled' : ''}
+    >
+      Receive Blessing
+    </button>
+
+    <style>
+      .essence-display {
+        font-size: 0.9em;
+        margin-bottom: 4px;
+        color: #9be1ff;
+      }
+      .building-description {
+        font-size: 0.85em;
+        margin-bottom: 10px;
+      }
+      .blessings-container.small {
+        display: flex;
+        gap: 6px;
+        justify-content: space-between;
+      }
+      .blessing-card {
+        flex: 1;
+        background: rgba(20, 20, 30, 0.55);
+        border: 1px solid #666;
+        border-radius: 6px;
+        padding: 6px 4px;
+        text-align: center;
+      }
+      .blessing-icon-small img {
+        width: 26px;
+        height: 26px;
+        opacity: 0.9;
+        margin-bottom: 4px;
+      }
+      .blessing-name {
+        font-size: 0.75em;
+        font-weight: 600;
+        color: #fff;
+      }
+      .blessing-bonus {
+        font-size: 0.75em;
+        color: #4ade80;
+        font-weight: 600;
+      }
+      .blessing-cost {
+        font-size: 0.85em;
+        color: #fbbf24;
+        margin: 8px 0;
+      }
+      .blessing-upgrade-btn {
+        width: 75px;
+        padding: 6px;
+        font-size: 0.85em;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.15s;
+        color: #fff;
+      }
+      .blessing-upgrade-btn:not(:disabled):hover {
+        transform: scale(1.05);
+      }
+
+    </style>
+  `;
+},
+
   inn: (building) => {
         // 🔍 Find building info in state.buildings array
     const b = state.buildings.find(b => b.id === building.id);
@@ -648,5 +779,43 @@ window.upgradeLibraryElement = function(elementId) {
     }
   } else {
     logMessage(`Not enough ${resourceType}! Need ${upgradeCost}.`);
+  }
+};
+
+window.receiveBlessing = function () {
+  const baseCost = 25;
+  const currentLevel = partyState.blessingLevel || 0;
+  const cost = Math.floor(baseCost * Math.pow(1.35, currentLevel));
+
+  if (state.resources.dungeonEssence < cost) {
+    logMessage(`Not enough Dungeon Essence! Need ${cost}.`);
+    return;
+  }
+
+  // Deduct cost
+  state.resources.dungeonEssence -= cost;
+
+  // Choose a random blessing
+  const blessingPool = ['hunter','slayer','banishing','alchemy','excommunication'];
+  const chosenId = blessingPool[Math.floor(Math.random() * blessingPool.length)];
+
+  // Apply blessing – each blessing gives +10% (same style as your library)
+  partyState.blessings[chosenId] = (partyState.blessings[chosenId] || 1) + 0.10;
+
+  // Increase global blessing level → increases future costs
+  partyState.blessingLevel = (partyState.blessingLevel || 0) + 1;
+
+  logMessage(`You received the ${chosenId} blessing! (+10%)`);
+  emit("resourceChanged", state.resources.dungeonEssence);
+
+  // Re-render the shrine menu
+  const dock = document.getElementById("mainDock");
+  if (dock) {
+    const currentBuildingId = dock.getAttribute("data-building-id");
+    if (currentBuildingId === "dungeonShrine") {
+      const building = state.buildings.find(b => b.id === currentBuildingId)
+        || { id: currentBuildingId, name: "Dungeon Shrine" };
+      dock.innerHTML = BUILDING_MENUS.dungeonShrine(building);
+    }
   }
 };

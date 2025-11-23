@@ -33,6 +33,14 @@ export const partyState = {
     physical: 1, fire: 1, water: 1, air: 1, earth: 0,
     poison: 1, light: 1, dark: 1, undead: 1 
   },
+  blessingLevel: 0, // overall blessing level
+  blessings: {
+    hunter: 1, // increase damage vs beast types
+    slayer: 1, // increase damage vs dragon types
+    banishing: 1, // increase damage vs undead types
+    alchemy: 1, // increase elemental damage
+    excommunication: 1 // increase damage vs demon types
+  },
   criticalChance: 0.05,
   elementalPenetration: 0,
   weaknessBonus: 0,
@@ -62,6 +70,7 @@ export const state = {
     gemIncomePerSecond: 0,
     woodIncomePerSecond: 0,
     oreIncomePerSecond: 0,
+    dungeonEssence: 0
   },
   autoQuest: false,
   activeQuest: null, // Add this
@@ -183,4 +192,16 @@ export function initState() {
 // debugging command to show partyState.heroBonuses
 window.showHeroBonuses = function() {
   console.log(partyState.heroBonuses);
+};
+
+// debugging command to show partyState.heroBonuses
+window.showBlessings = function() {
+  console.log(partyState.blessings);
+};
+
+// debugging give command for dungeonEssence
+window.giveDungeonEssence = function(amount) {
+  amount = amount || 100; // default to 100 if no amount provided
+  state.resources.dungeonEssence = (state.resources.dungeonEssence || 0) + amount;
+  console.log(`Given ${amount} Dungeon Essence. Total now: ${state.resources.dungeonEssence}`);
 };

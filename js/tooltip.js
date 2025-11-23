@@ -52,12 +52,14 @@ export function attachRequirementTooltip(container, entity, helpers) {
  * Looks up requirements and fills the tooltip text.
  */
 export function showRequirementTooltip(container, entity, helpers) {
+  //console.log('showRequirementTooltip called for ', entity);
   const tooltip = container.querySelector(".requirement-tooltip");
   if (!tooltip) return;
 
-  const { checkBuildingRequirements, getBuildingLevel, getHeroLevel } = helpers;
+  const { checkBuildingRequirements, getBuildingLevel, getHeroLevel, checkDungeonProgressRequirement, getDungeonProgress } = helpers;
   const currentBuildingLevel = getBuildingLevel(entity.id);
   const heroLevel = getHeroLevel();
+  
 
   // console.log('entity: ', entity);
 
@@ -81,9 +83,16 @@ const buildingUpgradeLimit = {
   met: currentBuildingLevel < heroLevel
 };
 
+const dungeonProgressRequirement = entity.dungeonProgressRequired
+  ? {
+      id: 'Dungeon Progress',
+      level: entity.dungeonProgressRequired,
+    }
+  : null;
 
   const allRequirements = [...buildingRequirements];
   if (heroRequirement) allRequirements.push(heroRequirement);
+  if (dungeonProgressRequirement) allRequirements.push(dungeonProgressRequirement);
   allRequirements.push(buildingUpgradeLimit); // Always include it
 
 
@@ -92,6 +101,8 @@ const requirementsMet = allRequirements.every((req) => {
     return heroLevel >= req.level;
   } else if (req.id === 'Building Upgrade Limit') {
     return req.met;
+  } else if (req.id === 'Dungeon Progress') {
+    return checkDungeonProgressRequirement(entity);
   } else {
     return getBuildingLevel(req.id) >= req.level;
   }
@@ -109,7 +120,13 @@ if (!buildingUpgradeLimit.met) {
   tooltipText += `<span style="color: #f44336">✗ ${buildingUpgradeLimit.description}</span><br>`;
 }
 
-
+if (dungeonProgressRequirement) {
+  const met = checkDungeonProgressRequirement(entity);
+  const status = met ? "✓" : "✗";
+  const color = met ? "#4CAF50" : "#f44336";
+  const currentDungeonProgress = typeof getDungeonProgress === 'function' ? getDungeonProgress() : 'N/A';
+  tooltipText += `<span style="color: ${color}">${status} Dungeon Progress ${dungeonProgressRequirement.level} (${currentDungeonProgress})</span><br>`;
+}
 
   if (heroRequirement) {
     tooltipText += `<span style="color: ${getHeroLevel() >= heroRequirement.level ? "#4CAF50" : "#f44336"}">${getHeroLevel() >= heroRequirement.level ? "✓" : "✗"} Hero Level ${heroRequirement.level} (${getHeroLevel()})</span><br>`;

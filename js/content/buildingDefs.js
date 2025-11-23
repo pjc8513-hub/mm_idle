@@ -1,3 +1,4 @@
+
 export const buildings = [
   { id: "farm",
     name: "Farm",
@@ -168,6 +169,24 @@ export const buildings = [
     goldIncomePerHit: 0,
     gemPerSecond: 0,
     description: "Unlocks new spell tiers for the spellbook.",
+  },
+  {
+    id: "dungeonShrine",
+    name: "Dungeon Shrine",
+    image: "assets/images/buildings/dungeonShrine.png",
+    type: 'upgrade',
+    reqHeroLevel: 5,
+    level: 0,
+    goldCost: 450,
+    buildingRequired: [ 
+      {id: "mageGuild", level: 1 },
+      {id: "temple", level: 1 }
+    ],
+    dungeonProgressRequired: 10,
+    gemCost: 0,
+    goldIncomePerHit: 0,
+    gemPerSecond: 0,
+    description: "Unlocks random blessings.",
   },
   { id: "thievesGuild",
     name: "Thieves Guild", 

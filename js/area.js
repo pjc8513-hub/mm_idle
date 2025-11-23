@@ -249,7 +249,7 @@ export function renderAreaPanel() {
       <div class="area-content">
         <div class="area-main">
           <div class="area-header dungeon-header">
-            <div id="areaName">🏰 Dungeon Mode - Depth: ${dungeonState.depth}</div>
+            <div id="areaNameText">🏰 Dungeon Mode - Depth: ${dungeonState.depth}</div>
             <div id="dungeonStats" class="dungeon-stats">
               Enemies Defeated: ${dungeonState.enemiesDefeated} | Best: ${dungeonState.maxDepth}
             </div>

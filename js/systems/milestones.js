@@ -79,6 +79,7 @@ export const DUNGEON_MILESTONES =
   { name: "Depths Survivor I", 
     rewards: [ 
       { type: "permanent_buff", stat: "bossDamage", value: 0.25 }, // +25% boss damage
+      { type: "building_unlock", buildingId: "dungeonShrine" }
     ], 
     description: "Reached depth 10 for the first time" }, 
   20: 

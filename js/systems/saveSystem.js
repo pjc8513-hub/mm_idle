@@ -66,7 +66,7 @@ export async function loadGame() {
         renderPartyPanel();
     }
     console.log("%c[LOAD] Game Loaded", "color:cyan");
-    console.log(state.currentArea);
+    console.log(dungeonState);
     renderAreaPanel();
     emit("gameLoaded");
 

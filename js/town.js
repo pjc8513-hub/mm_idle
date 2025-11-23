@@ -6,6 +6,8 @@ import { attachRequirementTooltip } from "./tooltip.js";
 import { updateUnlockedSkills } from "./party.js";
 import { calculateClassStats, updateTotalStats, levelUpClass, addHeroBonus, updateElementalModifiers } from "./systems/math.js";
 import { openDock, closeDock, DOCK_TYPES } from "./systems/dockManager.js";
+import { /*dungeonProgress*/ } from "./systems/milestones.js";
+import { getDungeonStats } from "./dungeonMode.js";
 import { BUILDING_MENUS } from "./content/buildingMenu.js";
 
 // Store the last state to detect changes
@@ -129,7 +131,9 @@ function fullRenderBuildingPanel() {
     attachRequirementTooltip(btn, building, {
       checkBuildingRequirements,
       getBuildingLevel,
-      getHeroLevel: () => partyState.heroLevel
+      getHeroLevel: () => partyState.heroLevel,
+      checkDungeonProgressRequirement,
+      getDungeonProgress: () => getDungeonStats().maxDepth,
     });
 
     btn.addEventListener("click", () => {
@@ -221,7 +225,8 @@ function updateBuildingPanel() {
                        state.resources.gems >= nextLevelCost.gems;
       const meetsRequirements = checkBuildingRequirements(building) &&
                                 currentLevel < partyState.heroLevel &&
-                                currentHeroLevel >= (building.reqHeroLevel || 0);
+                                currentHeroLevel >= (building.reqHeroLevel || 0) &&
+                                checkDungeonProgressRequirement(building);
 
       // Reset state-related classes (but don’t wipe children like tooltips)
       btn.classList.remove("blocked", "unaffordable", "affordable");
@@ -342,6 +347,12 @@ function checkBuildingRequirements(building) {
     return requiredLevel >= req.level;
   });
 }
+function checkDungeonProgressRequirement(building) {
+  if (!building.dungeonProgressRequired) return true;
+  // Use dungeon max depth as the player's best recorded progress
+  const { maxDepth } = getDungeonStats();
+  return maxDepth >= building.dungeonProgressRequired;
+}
 
 // Helper function to compare arrays
 function arraysEqual(a, b) {
@@ -358,12 +369,14 @@ function upgradeBuilding(buildingId) {
   if (!building) return;
 
   const currentLevel = getBuildingLevel(buildingId);
+  const meetsDungeonRequirement = checkDungeonProgressRequirement(building);
   const upgradeCost = calculateUpgradeCost(building, currentLevel);
 
   if (state.resources.gold >= upgradeCost.gold &&
       state.resources.gems >= upgradeCost.gems && 
       currentLevel < partyState.heroLevel &&
-      checkBuildingRequirements(building)) {
+      checkBuildingRequirements(building) &&
+      meetsDungeonRequirement) {
     
     state.resources.gold -= upgradeCost.gold;
     state.resources.gems -= upgradeCost.gems;

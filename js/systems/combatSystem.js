@@ -309,6 +309,20 @@ function getLevelDampening(attackerLevel, targetLevel) {
   }
 }
 
+function applyBlessingDamageBonus(target, baseDamage) {
+  const blessingTypes = {
+    beast: 'hunter',
+    dragon: 'slayer',
+    undead: 'banishing',
+    elemental: 'alchemy',
+    demon: 'excommunication'
+  };
+  const blessing = blessingTypes[target.type];
+  const bonusMultiplier = partyState.blessings[blessing] > 0 ? 
+    partyState.blessings[blessing] : 1;
+  return Math.max(baseDamage * bonusMultiplier, 1);
+}
+
 
 /**
  * Calculate damage for an attack
@@ -391,6 +405,8 @@ function calculateDamage(attacker, target) {
   
   const autoAttackBonus = partyState.heroBonuses.autoAttackDamage || 0;
   baseDamage *= (1 + autoAttackBonus);
+  // Apply blessing damage bonus
+  baseDamage = applyBlessingDamageBonus(target, baseDamage);
   
   const finalDamage = Math.max(1, Math.floor(baseDamage * damageMultiplier));
   
@@ -459,6 +475,7 @@ export function calculateSkillDamage(attacker, resonance, skillDamageRatio, targ
     const bossDmgBonus = partyState.heroBonuses.bossDamage || 0;
     skillDamage *= (1 + bossDmgBonus);
   }
+  skillDamage = applyBlessingDamageBonus(target, skillDamage);
 
   const finalDamage = Math.max(
     1,
@@ -531,6 +548,7 @@ export function calculateHeroSpellDamage(resonance, skillDamageRatio, target) {
     const bossDmgBonus = partyState.heroBonuses.bossDamage || 0;
     skillDamage *= (1 + bossDmgBonus);
   }
+  skillDamage = applyBlessingDamageBonus(target, skillDamage);
 
   const finalDamage = Math.max(1, Math.floor(skillDamage * elementalMultiplier));
 

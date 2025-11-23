@@ -307,7 +307,7 @@ function completeAllReadyQuests() {
 /**
  * Add experience to hero and handle leveling
  */
-function addHeroExp(amount) {
+export function addHeroExp(amount) {
   const oldLevel = partyState.heroLevel;
   partyState.heroExp += amount;
 
