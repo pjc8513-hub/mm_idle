@@ -1554,6 +1554,11 @@ export const heroSpells = [
    */
   update: function (delta) {
     if (!this.active) return;
+    const minotaur = partyState.party.find(c => c.id === "minotaur");
+    if (!minotaur) {
+      this.cleanup();
+      return;
+    }
     //console.log("minotaur rage update");
     // Add elapsed time only if wave is active and not paused
     if (state.activeWave) {

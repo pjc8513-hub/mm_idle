@@ -136,7 +136,9 @@ on("enemyDefeated", ({ enemy }) => {
   if (spellHandState.hand.length >= spellHandState.maxHandSize) return;
 
   const libraryLevel = getBuildingLevel("library");
-  const unlockedSpells = heroSpells.filter(spell => (spell.tier || 1) <= libraryLevel);
+  const unlockedSpells = heroSpells.filter(spell => 
+    (spell.tier || 1) <= libraryLevel && spell.id !== 'rage'
+  );
 
   if (unlockedSpells.length === 0) return;
   // --- Weighted tiers ---

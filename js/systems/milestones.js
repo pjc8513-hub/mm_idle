@@ -79,13 +79,15 @@ export const DUNGEON_MILESTONES =
   { name: "Depths Survivor I", 
     rewards: [ 
       { type: "permanent_buff", stat: "bossDamage", value: 0.25 }, // +25% boss damage
-      { type: "building_unlock", buildingId: "dungeonShrine" }
+      { type: "building_unlock", buildingId: "dungeonShrine" },
+      { type: "resource", id: "dungeonEssence", amount: 100 },
     ], 
     description: "Reached depth 10 for the first time" }, 
   20: 
   { name: "Depths Survivor II", 
     rewards: [ 
       { type: "permanent_buff", stat: "critDamage", value: 0.10 }, // +10% crit damage 
+      { type: "resource", id: "dungeonEssence", amount: 100 },
       ], 
       description: "Reached depth 20 for the first time" 
   },
@@ -94,6 +96,7 @@ export const DUNGEON_MILESTONES =
     rewards:
     [
       { type: "permanent_buff", stat: "allDamage", value: 0.05 },
+      { type: "resource", id: "dungeonEssence", amount: 100 },
     ],
     description: "Reached depth 30 for the first time" 
   }, 
@@ -103,6 +106,7 @@ export const DUNGEON_MILESTONES =
     [
       { type: "permanent_buff", stat: "autoAttackDamage", value: 1 }, // +100% auto attack damage
       { type: "permanent_buff", stat: "bossDamage", value: 0.50 },
+      { type: "resource", id: "dungeonEssence", amount: 100 },
     ],
     description: "Reached depth 40 for the first time"
       // more 

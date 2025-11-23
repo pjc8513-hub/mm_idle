@@ -9,6 +9,7 @@ import { dungeonProgress } from "./milestones.js";
 import { emit } from "../events.js";
 import { renderAreaPanel } from "../area.js";
 import { renderPartyPanel, togglePartyMember } from "../party.js";
+import { logMessage } from "./log.js";
 
 const SAVE_KEY = "cityOfMightSave";
 
@@ -33,6 +34,7 @@ export async function saveGame() {
 
   localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
   console.log("%c[SAVE] Game Saved", "color:lime");
+  logMessage("Game saved successfully.");
 
   emit("gameSaved");
 }

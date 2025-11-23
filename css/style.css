@@ -147,6 +147,51 @@ body, html {
   background-size: cover;
 }
 
+#newGameBtn {
+  position: relative;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  overflow: visible; /* ensure ring isn't clipped */
+}
+
+#newGameBtn.armed {
+  opacity: 1;
+  font-weight: bold;
+}
+
+/* Container for progress ring */
+#newGameBtn .progress-ring {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: calc(100% + 12px);
+  height: calc(100% + 12px);
+  pointer-events: none;
+}
+
+.progress-ring circle {
+  fill: none;
+  stroke: rgba(255, 255, 0, 0.8);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 0.1s linear;
+}
+
+
+#newGameBtn::after {
+  content: attr(data-hint);
+  position: absolute;
+  left: 105%;
+  top: 50%;
+  transform: translateY(-50%);
+  color: yellow;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+
 .area-bg {
   background-repeat: no-repeat;
   background-position: center center;

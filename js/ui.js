@@ -13,10 +13,11 @@ import { openDock, closeDock, DOCK_TYPES } from "./systems/dockManager.js";
 //import { heroSpells } from "./content/heroSpells.js";
 import { drawSpellHand, castSpellFromHand } from "./area.js";
 import { renderRunePanel } from "./runePanel.js";
+import { resetGame } from "./systems/saveSystem.js";
 
 export function initUI() {
-  // panel switching
-  const buttons = document.querySelectorAll("#sidePanel button");
+  // panel switching (all buttons except New Game)
+  const buttons = document.querySelectorAll("#sidePanel button[data-panel]");
   buttons.forEach(btn => {
     btn.addEventListener("click", () => {
       const target = btn.getAttribute("data-panel");
@@ -24,6 +25,65 @@ export function initUI() {
     });
   });
 
+    // -------------------------------
+  // NEW GAME BUTTON SPECIAL LOGIC
+  // -------------------------------
+  const newGameBtn = document.getElementById("newGameBtn");
+  const ring = newGameBtn.querySelector("circle");
+
+  const radius = ring.r.baseVal.value;
+  const circumference = 2 * Math.PI * radius;
+
+  ring.style.strokeDasharray = `${circumference}`;
+  ring.style.strokeDashoffset = `${circumference}`;
+
+  let hoverInterval = null;
+  let hoverTime = 0;
+  const requiredTime = 2000; // 2 seconds
+  let armed = false;
+
+  function resetProgress() {
+    hoverTime = 0;
+    ring.style.strokeDashoffset = circumference;
+    newGameBtn.classList.remove("armed");
+    armed = false;
+  }
+
+  newGameBtn.addEventListener("mouseenter", () => {
+    resetProgress();
+    hoverInterval = setInterval(() => {
+      hoverTime += 50;
+
+      const progress = hoverTime / requiredTime;
+      ring.style.strokeDashoffset = circumference * (1 - progress);
+
+      // Fully armed
+      if (hoverTime >= requiredTime) {
+        clearInterval(hoverInterval);
+        armed = true;
+        newGameBtn.classList.add("armed");
+      }
+    }, 50);
+  });
+
+  newGameBtn.addEventListener("mouseleave", () => {
+    clearInterval(hoverInterval);
+    resetProgress();
+  });
+
+  newGameBtn.addEventListener("click", async () => {
+    if (!armed) return;
+
+    const yes = confirm(
+      "Are you sure you want to start a NEW GAME?\nThis deletes all progress."
+    );
+
+    if (yes) {
+      await resetGame();
+    } else {
+      resetProgress();
+    }
+  });
 
   // ✅ FIXED: Attach to mainDock instead of document
 const mainDock = document.getElementById("mainDock");

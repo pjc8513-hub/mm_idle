@@ -15,6 +15,7 @@ import { getElementalMultiplier, getElementalMatchup } from './elementalSystem.j
 import { floatingTextManager } from './floatingtext.js';
 import { getEnemyCanvasPosition } from "../area.js";
 import { removeEnemyTooltipById } from "../tooltip.js";
+import { dungeonState } from '../dungeonMode.js';
 
 // Combat configuration
 const COMBAT_CONFIG = {
@@ -468,8 +469,10 @@ export function calculateSkillDamage(attacker, resonance, skillDamageRatio, targ
     attacker.stats.elementalPenetration || 0,
     attacker.stats.weaknessBonus || 0
   );
-
-  const levelMultiplier = getLevelDampening(attacker.level, target.level);
+  let levelMultiplier;
+  if (!target.isDungeonEnemy){ levelMultiplier = getLevelDampening(attacker.level, target.level);
+  } else { levelMultiplier = getLevelDampening(partyState.heroLevel, dungeonState.depth);
+  }
     // Boss damage bonus from dungeon rewards
   if (target.isBoss && partyState) {
     const bossDmgBonus = partyState.heroBonuses.bossDamage || 0;
@@ -479,7 +482,7 @@ export function calculateSkillDamage(attacker, resonance, skillDamageRatio, targ
 
   const finalDamage = Math.max(
     1,
-    Math.floor(skillDamage * elementalMultiplier * levelMultiplier)
+    Math.floor((skillDamage * elementalMultiplier) * levelMultiplier)
   );
 
   // console.log(`[Skill Damage] Final: ${finalDamage} (${resonance} vs ${target.elementType})`);

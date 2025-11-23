@@ -115,9 +115,11 @@ export function initDungeonMode() {
       // Gradually increase requirement to simulate larger dungeons
       //dungeonState.depthKillRequirement = Math.ceil(dungeonState.depthKillRequirement * 1.03);
       // Diablo-rift-like dungeon growth
+      /*
       if (dungeonState.depth % 5 === 0) {
         dungeonState.depthKillRequirement += 5;
       }
+      */
       // or use: +1, +2 occasionally, etc.
 
       // Update max depth
@@ -197,7 +199,7 @@ export function startDungeonMode() {
   
   // Reset dungeon stats
   dungeonState.active = true;
-  //dungeonState.enemiesDefeated = 0;
+  dungeonState.enemiesDefeated = 0;
   //dungeonState.depth = 0;
   //dungeonState.currentTier = 1;
   
