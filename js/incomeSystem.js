@@ -6,7 +6,7 @@ import { logMessage } from "./systems/log.js";
 
 // Constants
 const K_HIT = 0.02;       // gold per point of auto damage dealt
-const BOUNTY_FACTOR = 0.02; // gold per enemy HP on kill
+const BOUNTY_FACTOR = 10; // gold per enemy HP on kill
 
 // Centralized income functions
 export const incomeSystem = {
@@ -45,7 +45,7 @@ export const incomeSystem = {
   },
 
   applyKillIncome(enemy) {
-    let income = enemy.maxHp * BOUNTY_FACTOR;
+    let income = Math.log10(enemy.maxHp + 1) * BOUNTY_FACTOR;
     income *= getBonusGoldMultiplier();
 
     state.resources.gold += income;

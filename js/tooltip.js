@@ -268,30 +268,41 @@ export function showPartyTooltip(container, cls) {
     ? cls.resonance.map(r => r[0].toUpperCase() + r.slice(1)).join(" / ")
     : cls.resonance?.[0].toUpperCase() + cls.resonance?.slice(1) || "None";
 
+  // Build abilities list
+  const abilityList = cls.abilities?.length
+    ? cls.abilities.map(a => `
+        <li>
+          <strong>${a.id}</strong><br>
+          <em>${a.description}</em><br>
+          ${a.cooldown ? `<span><strong>Cooldown:</strong> ${a.cooldown / 1000}s</span>` : ""}
+        </li>
+      `).join("")
+    : "<li>No skills available</li>";
+
   tooltip.innerHTML = `
     <strong>${cls.name}</strong><br>
     <em>${cls.description}</em><br>
+
     <div><strong>Role:</strong> ${cls.role}</div>
     <div><strong>Resonance:</strong> ${resonanceText}</div>
-    <div><strong>Base Stats:</strong>
+
+    <div><strong>Skills:</strong>
       <ul>
-        <li>HP: ${cls.baseStats.hp}</li>
-        <li>Attack: ${cls.baseStats.attack}</li>
-        <li>Defense: ${cls.baseStats.defense}</li>
-        <li>Speed: ${cls.baseStats.speed}</li>
-        <li>Crit: ${(cls.baseStats.criticalChance * 100).toFixed(1)}%</li>
+        ${abilityList}
       </ul>
     </div>
   `;
+
   tooltip.style.display = "block";
   tooltip.style.position = "fixed";
 
-  // Keep tooltip near cursor
+  // Follow cursor
   container.addEventListener("mousemove", (e) => {
     tooltip.style.top = `${e.clientY + 10}px`;
     tooltip.style.left = `${e.clientX + 10}px`;
   });
 }
+
 
 export function hidePartyTooltip(container) {
   const tooltip = document.querySelector(`.party-tooltip[data-owner-id="${container.dataset.classId}"]`);

@@ -1,6 +1,3 @@
-import { partyState } from "../state.js";
-import { abilities } from "./abilities.js";
-
 export const classes = [
     { id: "fighter", 
       name: "Fighter",
@@ -14,9 +11,9 @@ export const classes = [
       //image: "assets/images/classes/fighter.png",
       description: "Scrappy brawler that gains damage per hit to the same target and pressures columns.",
       abilities: [
-        { id: "pummel", unlockLevel: 1 },
-        { id: "followThrough", unlockLevel: 1, active: false },
-        { id: "speedBoost", unlockLevel: 5 }
+        { id: "pummel", unlockLevel: 1, description: "Deals more damage in consecutive hits against the same target" },
+        { id: "followThrough", unlockLevel: 1, active: false, description: "Attacks the current column of enemies", cooldown: 7000 },
+        { id: "speedBoost", unlockLevel: 5, description: "Increases attack speed temporarily" }
       ],
       skills: {
         pummel: { active: true },
@@ -90,8 +87,8 @@ export const classes = [
       //baseStats: { hp: partyState.heroStats.hp * 1.2, attack: partyState.heroStats.attack * 0.8, defense: 3, criticalChance: 0.15, speed: 1.5 },
       //growthPerLevel: { attack: 1, defense: 1 },
       abilities: [
-        { id: "leadership", unlockLevel: 1 },
-        { id: "flameArch", unlockLevel: 1, active: false }
+        { id: "leadership", unlockLevel: 1, description: "Reduces skill cooldowns of party members per autoattack" },
+        { id: "flameArch", unlockLevel: 1, active: false, description: "Deals fire damage to a row of enemies", cooldown: 6500 }
         
       ],
       skills: {

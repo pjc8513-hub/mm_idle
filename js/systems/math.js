@@ -78,28 +78,52 @@ export function updateElementalModifiers() {
 
 
 
-/* 
- * @param {*} num 
- * @returns 
+/*
+ * @param {number} num
+ * @returns {{ text: string, suffix: string }}
  */
 export function formatNumber(num) {
-  if (num >= 1_000_000_000) {
-    return { text: (num / 1_000_000_000).toFixed(1) + "B", suffix: "B" };
-  } else if (num >= 1_000_000) {
-    return { text: (num / 1_000_000).toFixed(1) + "M", suffix: "M" };
-  } else if (num >= 1_000) {
-    return { text: (num / 1_000).toFixed(1) + "K", suffix: "K" };
-  } else {
-    return { text: num.toString(), suffix: "" };
+  const units = [
+    { value: 1e33, suffix: "Dc" }, // Decillion
+    { value: 1e30, suffix: "No" }, // Nonillion
+    { value: 1e27, suffix: "Oc" }, // Octillion
+    { value: 1e24, suffix: "Sp" }, // Septillion
+    { value: 1e21, suffix: "Sx" }, // Sextillion
+    { value: 1e18, suffix: "Qi" }, // Quintillion
+    { value: 1e15, suffix: "Qa" }, // Quadrillion
+    { value: 1e12, suffix: "T"  }, // Trillion
+    { value: 1e9,  suffix: "B"  }, // Billion
+    { value: 1e6,  suffix: "M"  }, // Million
+    { value: 1e3,  suffix: "K"  }, // Thousand
+  ];
+
+  for (const u of units) {
+    if (num >= u.value) {
+      return {
+        text: (num / u.value).toFixed(1) + u.suffix,
+        suffix: u.suffix
+      };
+    }
   }
+
+  return { text: num.toString(), suffix: "" };
 }
 
 export const suffixColors = {
   "K": "brown",
   "M": "yellow",
   "B": "red",
-  "": "white" // default for plain numbers
+  "T": "purple",
+  "Qa": "lightblue",
+  "Qi": "cyan",
+  "Sx": "lime",
+  "Sp": "green",
+  "Oc": "orange",
+  "No": "pink",
+  "Dc": "gold",
+  "": "white"
 };
+
 
 /**
  * Calculate hero's current stats based on level

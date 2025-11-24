@@ -9,6 +9,7 @@ import { openDock, closeDock, DOCK_TYPES } from "./systems/dockManager.js";
 import { /*dungeonProgress*/ } from "./systems/milestones.js";
 import { getDungeonStats } from "./dungeonMode.js";
 import { BUILDING_MENUS } from "./content/buildingMenu.js";
+import { formatNumber } from "./systems/math.js";
 
 // Store the last state to detect changes
 let lastBuildingState = {
@@ -186,6 +187,7 @@ function updateBuildingPanel() {
 
     const currentLevel = getBuildingLevel(buildingId);
     const nextLevelCost = calculateUpgradeCost(building, currentLevel);
+    const formattedGold = formatNumber(nextLevelCost.gold);
 
     // --- Update building level (only if buildings changed) ---
     if (buildingsChanged) {
@@ -242,8 +244,8 @@ function updateBuildingPanel() {
         btn.disabled = false;
       }
 
-      const costSpan = btn.querySelector('.upgrade-cost');
-      costSpan.textContent = `${nextLevelCost.gold}g${nextLevelCost.gems > 0 ? ` ${nextLevelCost.gems}💎` : ""}`;
+      const costSpan = btn.querySelector('.upgrade-cost'); 
+      costSpan.textContent = `${formattedGold.text}${formattedGold.suffix}g${nextLevelCost.gems > 0 ? ` ${nextLevelCost.gems}💎` : ""}`;
         
     }
 
