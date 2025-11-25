@@ -6,7 +6,7 @@ import { createEnemy } from "./waveManager.js";
 import { stopAutoAttack, startAutoAttack, setTarget } from "./systems/combatSystem.js";
 import { addWaveTime, stopWaveTimer, startWaveTimer, updateEnemiesGrid, updateAreaPanel, renderAreaPanel } from "./area.js";
 import { prefixes } from "./content/definitions.js";
-import { checkMilestoneRewards } from "./systems/milestones.js";
+import { checkMilestoneRewards, dungeonProgress } from "./systems/milestones.js";
 import { addHeroExp } from "./questManager.js";
 
 // Dungeon enemy tiers - progressively unlock harder enemies
@@ -315,7 +315,7 @@ export function endDungeonMode() {
 
   // Award rewards
   applyDungeonRewards(rewards);
-
+  
   // Spawn normal wave
   emit("dungeonModeEnded", { 
     finalDepth, 
@@ -339,8 +339,9 @@ function calculateDungeonRewards(depth, enemiesDefeated) {
   
   const totalGold = (enemiesDefeated * baseGoldPerEnemy) + depthBonus + streakBonus;
   
-  // Future: Add more reward types
-  const dungeonEssence = Math.floor(enemiesDefeated / 5); // 1 essence per 5 enemies
+  // Future: Add more reward types 
+  const dungeonEssence = Math.floor(enemiesDefeated / 5) + dungeonProgress.dungeonEssence; // 1 essence per 5 enemies + milestone bonus
+  dungeonProgress.dungeonEssence = 0; // reset for next run
   return {
     gold: totalGold,
     gems: Math.floor(depth / 10), // 1 gem per 10 depth

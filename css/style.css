@@ -1812,3 +1812,36 @@ body, html {
   cursor: not-allowed;
   opacity: 0.5;
 }
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: #222;
+  padding: 20px 30px;
+  border-radius: 8px;
+  text-align: center;
+  color: white;
+  width: 300px;
+  box-shadow: 0 0 10px black;
+}
+
+#idleCloseBtn {
+  margin-top: 15px;
+  padding: 8px 18px;
+  cursor: pointer;
+}

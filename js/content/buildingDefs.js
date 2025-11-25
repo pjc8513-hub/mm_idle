@@ -18,7 +18,7 @@ export const buildings = [
     type: 'economy',
     reqHeroLevel: 0,
     level: 0, 
-    goldCost: 20,
+    goldCost: 100,
     goldIncomePerHit: 2,
     gemCost: 0,
     gemPerSecond: 0,
@@ -30,7 +30,7 @@ export const buildings = [
     type: 'economy',
     reqHeroLevel: 0,
     level: 0,
-    goldCost: 30,
+    goldCost: 200,
     gemCost: 0,
     goldIncomePerHit: 3,
     gemPerSecond: 0,
@@ -153,6 +153,7 @@ export const buildings = [
     upgradedClasses: { id: "sorceress"},
     buildingRequired: [
       { id: "barracks", level: 1 },
+      { id: "inn", level: 1 },
       { id: "gemMine", level: 1 }
     ]
   },
@@ -325,10 +326,10 @@ export const buildings = [
     image: null, // "assets/images/buildings/castle.png",
     reqHeroLevel: 20,
     level: 0,
-    goldCost: 500,
+    goldCost: 1500,
     gemCost: 50,
-    goldIncomePerHit: 100,
-    gemPerSecond: 0.0334, // 2 gems per minute
+    goldIncomePerHit: 10,
+    gemPerSecond: 0, // 2 gems per minute
     // Example of many requirements (as array)
     buildingRequired: [
       { id: "farm", level: 20 },

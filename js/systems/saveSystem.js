@@ -10,6 +10,8 @@ import { emit } from "../events.js";
 import { renderAreaPanel } from "../area.js";
 import { renderPartyPanel, togglePartyMember } from "../party.js";
 import { logMessage } from "./log.js";
+import { incomeSystem } from "../incomeSystem.js";
+import { showIdleModal } from "../ui.js";
 
 const SAVE_KEY = "cityOfMightSave";
 
@@ -29,7 +31,8 @@ export async function saveGame() {
     runeState,
     quickSpellState,
     dungeonState,
-    dungeonProgress
+    dungeonProgress,
+    lastSaved: Date.now()
   };
 
   localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
@@ -57,6 +60,31 @@ export async function loadGame() {
     Object.assign(quickSpellState, parsed.quickSpellState);
     Object.assign(dungeonState, parsed.dungeonState);
     Object.assign(dungeonProgress, parsed.dungeonProgress);
+
+    const now = Date.now();
+    const lastSaved = parsed.lastSaved || now;
+    const elapsedSeconds = Math.floor((now - lastSaved) / 1000);
+
+    // ---- Calculate rewards ----
+    const rewards = incomeSystem.calculateIdleIncome(elapsedSeconds);
+
+    // --- Debug log for development ---
+    console.table({
+      BEFORE: { gold: state.resources.gold, essence: state.resources.dungeonEssence },
+      IDLE_GAIN: rewards,
+      AFTER: {
+        gold: state.resources.gold + rewards.gold,
+        essence: state.resources.dungeonEssence + rewards.essence
+      }
+    });
+
+    // ---- Apply rewards ----
+    incomeSystem.applyIdleIncome(rewards);
+
+    // ---- Show modal if player gained anything ----
+    if (rewards.gold > 0) {
+      showIdleModal(rewards);
+    }
 
     // Re-initialize party members based on loaded state
     if (partyState.party.length > 0){

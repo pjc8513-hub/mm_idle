@@ -480,7 +480,8 @@ export function damageEnemy(enemy, damageObject, element) {
   
   //const enemy = state.enemies[row][col];
   if (!enemy || enemy.hp <= 0) return false;
-  const applyDmg = Math.round(damage);
+  const applyDmg = Math.round(damage * (1 + (partyState.heroBonuses.allDamage || 0)));
+  //console.log(`Damaging ${enemy.name} for ${applyDmg} (${damage} base, +${(partyState.heroBonuses.allDamage || 0)*100}% bonus)`);
   enemy.hp = Math.max(0, enemy.hp - applyDmg);
   
   // Check for NaN and log details

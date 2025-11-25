@@ -308,3 +308,22 @@ export function applyAreaBackground(area) {
 
   [gameEl, resourceBarEl, sidePanelEl].forEach(el => el.classList.add("area-bg"));
 }
+
+export function showIdleModal(rewards) {
+  const modal = document.getElementById("idleModal");
+  const msg = document.getElementById("idleMessage");
+
+  const hours = (rewards.seconds / 3600).toFixed(1);
+
+  msg.innerHTML = `
+    You were gone for <strong>${hours} hours</strong><br><br>
+    <strong>Gold gained:</strong> ${rewards.gold.toLocaleString()}<br>
+    <strong>Dungeon essence gained:</strong> ${rewards.essence.toLocaleString()}
+  `;
+
+  modal.classList.remove("hidden");
+
+  document.getElementById("idleCloseBtn").onclick = () => {
+    modal.classList.add("hidden");
+  };
+}

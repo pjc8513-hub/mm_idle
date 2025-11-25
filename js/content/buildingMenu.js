@@ -6,6 +6,7 @@ import { emit, on } from "../events.js";
 import { logMessage } from "../systems/log.js";
 import { getBuildingLevel } from "../town.js";
 import { updateElementalModifiers } from "../systems/math.js";
+import { BOUNTY_FACTOR } from "../incomeSystem.js";
 //import { openDock } from "../systems/dockManager.js";
 
 export function initBuildingMenu() {
@@ -102,6 +103,98 @@ export const BUILDING_MENUS = {
     `;
     }
   },
+  gemMine: (building) => {
+        // 🔍 Find building info in state.buildings array
+    const b = state.buildings.find(b => b.id === building.id);
+    const buildingLevel = b ? b.level : 0;
+
+    if (buildingLevel <= 0) {
+      return `
+        <h3>Gem Mine</h3>
+        <p>This building hasn't been constructed yet.</p>
+        <p>Build it first in order to increase max gems!</p>
+      `;
+    } else {
+    return `
+      <h3>Gem Mine</h3>
+        <div class="building-stats">
+        <p>Level up to raise the gem cap!</p>
+      </div>
+      <div>
+        <p>Current gem cap bonus: ${state.resources.maxGems} </p>
+      </div>
+    `;
+    }
+  },
+  mine: (building) => {
+        // 🔍 Find building info in state.buildings array
+    const b = state.buildings.find(b => b.id === building.id);
+    const buildingLevel = b ? b.level : 0;
+
+    if (buildingLevel <= 0) {
+      return `
+        <h3>Mine</h3>
+        <p>This building hasn't been constructed yet.</p>
+        <p>Build it first in order to increase hit economy!</p>
+      `;
+    } else {
+    return `
+      <h3>Mine</h3>
+        <div class="building-stats">
+        <p>Level up to raise the hit economy!</p>
+      </div>
+      <div>
+        <p>Current hit economy bonus: ${building.goldIncomePerHit * buildingLevel} </p>
+      </div>
+    `;
+    }
+  },
+  lumberMill: (building) => {
+        // 🔍 Find building info in state.buildings array
+    const b = state.buildings.find(b => b.id === building.id);
+    const buildingLevel = b ? b.level : 0;
+
+    if (buildingLevel <= 0) {
+      return `
+        <h3>Lumber Mill</h3>
+        <p>This building hasn't been constructed yet.</p>
+        <p>Build it first in order to increase hit economy!</p>
+      `;
+    } else {
+    return `
+      <h3>Lumber Mill</h3>
+        <div class="building-stats">
+        <p>Level up to raise the hit economy!</p>
+      </div>
+      <div>
+        <p>Current hit economy bonus: ${building.goldIncomePerHit * buildingLevel} </p>
+      </div>
+    `;
+    }
+  },
+  castle: (building) => {
+        // 🔍 Find building info in state.buildings array
+    const b = state.buildings.find(b => b.id === building.id);
+    const buildingLevel = b ? b.level : 0;
+
+    if (buildingLevel <= 0) {
+      return `
+        <h3>Castle</h3>
+        <p>This building hasn't been constructed yet.</p>
+        <p>Build it first in order to increase bounty!</p>
+      `;
+    } else {
+    return `
+      <h3>Castle</h3>
+        <div class="building-stats">
+        <p>Level up to raise the bounty!</p>
+      </div>
+      <div>
+        <p>Current bounty bonus: ${BOUNTY_FACTOR} * ${buildingLevel}</p>
+      </div>
+    `;
+    }
+  },        
 library: (building) => {
   const b = state.buildings.find(b => b.id === building.id);
   const buildingLevel = b ? b.level : 0;

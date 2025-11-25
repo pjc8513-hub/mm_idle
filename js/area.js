@@ -591,20 +591,8 @@ function renderEnemyCard(enemy, row, col) {
   return `
     <div class="enemy-card ${elementClass} ${bossClass}" id="enemy-${row}-${col}" data-enemy-id="${enemy.uniqueId}">
       ${spriteHTML}
-      <div class="enemy-name">${enemy.name || template.baseName}</div>
       <div class="enemy-level">Lv.${enemy.level}</div>
       <div class="enemy-type">${template.type}</div>
-      <div class="enemy-hp">
-        <div class="hp-bar">
-          <div class="hp-fill" style="width: ${hpPercentage}%"></div>
-        </div>
-        <div class="hp-text">${enemy.hp}/${enemy.maxHp}</div>
-      </div>
-      ${enemy.statusEffects && enemy.statusEffects.length > 0 ? 
-        `<div class="status-effects">
-          ${enemy.statusEffects.map(effect => `<span class="status ${effect.type}">${effect.type}</span>`).join('')}
-        </div>` : ''
-      }
     </div>
   `;
 }

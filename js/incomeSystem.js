@@ -6,7 +6,7 @@ import { logMessage } from "./systems/log.js";
 
 // Constants
 const K_HIT = 0.02;       // gold per point of auto damage dealt
-const BOUNTY_FACTOR = 10; // gold per enemy HP on kill
+export const BOUNTY_FACTOR = 10; // gold per enemy HP on kill
 
 // Centralized income functions
 export const incomeSystem = {
@@ -45,14 +45,73 @@ export const incomeSystem = {
   },
 
   applyKillIncome(enemy) {
-    let income = Math.log10(enemy.maxHp + 1) * BOUNTY_FACTOR;
+    let income =
+    Math.log10(enemy.maxHp + 1) *
+    Math.max(10, BOUNTY_FACTOR * (1 + (state.buildings.castle?.level ?? 0) * 0.1));
     income *= getBonusGoldMultiplier();
 
     state.resources.gold += income;
     emit("goldChanged", state.resources.gold);
 
     return income;
+  },
+    // -----------------------------------------------------
+  // NEW: Idle rewards
+  // -----------------------------------------------------
+  calculateIdleIncome(secondsOffline) {
+    // Cap at 24 hours
+    const capped = Math.min(secondsOffline, 24 * 3600);
+
+    if (capped <= 0) {
+      return { gold: 0, seconds: 0 };
+    }
+
+    // Your base idle might be:
+    //   - Your current party attack
+    //   - Multiplied by income multipliers
+    //   - Multiplied by wave progression
+
+    const attack = state.partyTotals?.attack || 0; 
+    const wave = state.areaWave || 1;
+
+    // Base idle formula — tweak to taste
+    let goldPerSecond = attack * 0.05;      // 5% of attack per second
+    goldPerSecond *= 1 + wave * 0.05;       // +5% per wave
+    goldPerSecond *= getBonusGoldMultiplier(); // same multiplier used in normal income
+    let essencePerSecond = 0;
+
+    // Buildings that give income per hit? 
+    // Give them partial value, not full hit frequency
+    for (const building of state.buildings) {
+      const data = buildings.find(b => b.id === building.id);
+      const lvl = getBuildingLevel(building.id);
+
+      if (data.goldIncomePerHit) {
+        goldPerSecond += data.goldIncomePerHit * lvl * 0.25; 
+      }
+      if (data.id === 'dungeonShrine'){
+        essencePerSecond += 0.01 * lvl; // flat 0.01 essence/sec per shrine level
+      }
+    }
+
+    const gold = Math.floor(goldPerSecond * capped);
+    const essence = Math.floor(essencePerSecond * capped);
+
+    return { gold, essence, seconds: capped };
+  },
+
+
+  // -----------------------------------------------------
+  // NEW: Apply idle income and update state
+  // -----------------------------------------------------
+  applyIdleIncome(rewards) {
+    state.resources.gold += rewards.gold;  
+    emit("goldChanged", state.resources.gold);
+
+    state.resources.dungeonEssence += rewards.essence;
+    emit("essenceChanged", state.resources.dungeonEssence);
   }
+  
 };
 
 // Example multiplier function (expand later)

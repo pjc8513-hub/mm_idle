@@ -111,6 +111,38 @@ export const DUNGEON_MILESTONES =
     description: "Reached depth 40 for the first time"
       // more 
   },
+  50:
+  { name: "Dungeon Legend",
+    rewards:
+    [
+      { type: "permanent_buff", stat: "critDamage", value: 0.20 },
+      { type: "permanent_buff", stat: "timeBonus", value: 2 }, // +2 seconds max dungeon time
+      { type: "resource", id: "dungeonEssence", amount: 200 },
+      { type: "spell_unlock", spellId: "dungeonNova" },
+      { type: "achievement", id: "dungeon_legend" }
+    ],
+    description: "Reached depth 50 for the first time"
+  },
+  60:
+  { name: "Dungeon legend II",
+    rewards:
+    [
+      { type: "permanent_buff", stat: "allDamage", value: 0.15 },
+      { type: "permanent_buff", stat: "bossDamage", value: 1 }, // +100% boss damage
+      { type: "resource", id: "dungeonEssence", amount: 300 },
+    ],
+    description: "Reached depth 60 for the first time"
+  },
+  70:
+  { name: "Dungeon legend III",
+    rewards:
+    [
+      { type: "permanent_buff", stat: "critDamage", value: 0.25 },
+      { type: "permanent_buff", stat: "autoAttackDamage", value: 2 }, // +200% auto attack damage
+      { type: "resource", id: "dungeonEssence", amount: 400 },
+    ],
+    description: "Reached depth 70 for the first time"
+  }
 };
 
 export const dungeonProgress = 
@@ -236,6 +268,11 @@ function applyPermanentBuff(stat, value) {
     case "autoAttackDamage":
       partyState.heroBonuses.autoAttackDamage = 
         (partyState.heroBonuses.autoAttackDamage || 0) + value;
+      break;
+
+    case "allDamage":
+      partyState.heroBonuses.allDamage = 
+        (partyState.heroBonuses.allDamage || 0) + value;
       break;
 
     case "timeBonus":

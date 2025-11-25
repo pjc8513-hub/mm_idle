@@ -401,6 +401,14 @@ function upgradeBuilding(buildingId) {
       const attackBonus = 2 + Math.floor((blacksmithLevel ** 0.8) * 0.1);
       addHeroBonus('attack', attackBonus);
     }
+    if (building.id === "gemMine"){
+      const gemMineLevel = getBuildingLevel(building.id);
+      if (gemMineLevel % 5 === 0) {
+        const maxGemsBonus = 5 + Math.floor(gemMineLevel / 5) * 5;
+        state.resources.maxGems += maxGemsBonus;
+        emit("maxGemsChanged", state.resources.maxGems);
+      }
+    }
       /*
     if (building.id === 'library'){
       partyState.heroBonuses[state.libraryUpgrade] += 0.10;
