@@ -6,6 +6,7 @@ import { state, partyState, spellHandState, runeState,
          quickSpellState } from "../state.js";
 import { dungeonState } from "../dungeonMode.js";
 import { dungeonProgress } from "./milestones.js";
+import { summonsState } from "./summonSystem.js";
 import { emit } from "../events.js";
 import { renderAreaPanel } from "../area.js";
 import { renderPartyPanel, togglePartyMember } from "../party.js";
@@ -32,6 +33,7 @@ export async function saveGame() {
     quickSpellState,
     dungeonState,
     dungeonProgress,
+    summonsState,
     lastSaved: Date.now()
   };
 
@@ -60,6 +62,7 @@ export async function loadGame() {
     Object.assign(quickSpellState, parsed.quickSpellState);
     Object.assign(dungeonState, parsed.dungeonState);
     Object.assign(dungeonProgress, parsed.dungeonProgress);
+    Object.assign(summonsState, parsed.summonsState || {});
 
     const now = Date.now();
     const lastSaved = parsed.lastSaved || now;

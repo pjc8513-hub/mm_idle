@@ -237,3 +237,9 @@ function shuffle(arr) {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
 }
+
+window.gainIdleRewards = function(seconds) {
+  const rewards = incomeSystem.calculateIdleIncome(seconds);
+  incomeSystem.applyIdleIncome(rewards);
+  showIdleModal(rewards);
+}

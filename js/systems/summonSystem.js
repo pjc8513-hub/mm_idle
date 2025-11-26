@@ -423,4 +423,12 @@ export function getActiveSummonCount() {
 export function clearAllSummons() {
   const toRemove = [...summonsState.active];
   toRemove.forEach(summon => removeSummon(summon));
+} 
+
+window.clearSummons = function() {
+  clearAllSummons();
+  console.log("All summons cleared");
+}
+window.showSummons = function() {
+  console.log(summonsState.active);
 }

@@ -418,3 +418,28 @@ export function updateUnlockedSkills(classObj) {
     }
   });
 }
+
+window.showParty = function() {
+  console.log("Party State:", partyState.party);
+}
+
+window.cleanupBrokenSummons = function () {
+  const removed = [];
+
+  // iterate backwards to safely splice
+  for (let i = partyState.party.length - 1; i >= 0; i--) {
+    const member = partyState.party[i];
+    if (member.isSummon === true) {
+      removed.push(member);
+      partyState.party.splice(i, 1);
+    }
+  }
+
+  if (removed.length > 0) {
+    emit("partyChanged", partyState.party);
+    updateTotalStats();
+    updateElementalModifiers();
+  }
+
+  console.log(`Removed ${removed.length} stray summons:`, removed);
+};
