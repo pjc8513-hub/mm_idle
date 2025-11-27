@@ -349,10 +349,13 @@ export const buildings = [
       reqHeroLevel: 20,
       level: 0,
       goldCost: 1000,
-      gemCost: 100,
+      gemCost: 20,
       goldIncomePerHit: 0,
-      gemPerSecond: 0.0501, // 3 gems per minute
+      gemPerSecond: 0, //0.0501, // 3 gems per minute
       // Example of single requirement (as object)
-      buildingRequired: { id: "castle", level: 1 }
+      buildingRequired: [
+        { id: "mageGuild", level: 20 },
+        { id: "inn", level: 20 }
+      ]
     }
 ];

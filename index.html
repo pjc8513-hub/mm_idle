@@ -9,6 +9,7 @@
   <!-- Resource Bar -->
 <div id="resourceBar">
   <span id="heroLevelResource">Hero Level: 1</span>
+  <button id="ascendBtn" class="hidden">Ascend</button>
   <span id="resources">
     <span id="gold">Gold: 0</span> | 
     <span id="gems">Gems: 0</span>
@@ -84,6 +85,35 @@
       <button id="idleCloseBtn">OK</button>
     </div>
   </div>
+
+  <div id="ascendModal" class="modal hidden">
+  <div class="modal-content">
+    <h2>Ascension</h2>
+    <p>Select a permanent boon:</p>
+
+    <button class="ascendChoice" data-boon="gold">
+      Boon of Wealth: +25% gold income
+    </button>
+
+    <button class="ascendChoice" data-boon="boss">
+      Boss Slayer: +25% boss damage
+    </button>
+
+    <button class="ascendChoice" data-boon="crit">
+      Killer Instinct: +10% crit damage
+    </button>
+
+    <button class="ascendChoice" data-boon="allDamage">
+      Might Unbound: +10% all damage
+    </button>
+
+    <button class="ascendChoice" data-boon="autoAttack">
+      Fury Machine: +100% auto-attack damage
+    </button>
+
+    <button id="ascensionCancel">Cancel</button>
+  </div>
+</div>
 
 
   <script type="module" src="./js/main.js"></script>

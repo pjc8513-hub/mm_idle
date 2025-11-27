@@ -1,4 +1,4 @@
-import { state, runeState } from "./state.js";
+import { state, runeState, partyState } from "./state.js";
 import { emit } from "./events.js";
 import { buildings } from "./content/buildingDefs.js";
 import { getBuildingLevel } from "./town.js";
@@ -7,6 +7,22 @@ import { logMessage } from "./systems/log.js";
 // Constants
 const K_HIT = 0.02;       // gold per point of auto damage dealt
 export const BOUNTY_FACTOR = 10; // gold per enemy HP on kill
+
+export const ENEMY_TYPE_INCOME_MULT = {
+  dragon: 2.5,
+  elemental: 2.2,
+  demon: 2.0,
+
+  construct: 1.6,
+
+  humanoid: 1.2,
+  beast: 1.1,
+  undead: 1.1,
+
+  pest: 0.8,
+  default: 1.0,
+};
+const TYPE_GROWTH_FACTOR = 0.015; // each area/depth pushes multiplier a bit
 
 // Centralized income functions
 export const incomeSystem = {
@@ -34,6 +50,8 @@ export const incomeSystem = {
     // Global/time bonuses
     income *= getBonusGoldMultiplier();
     //console.log(`income on hit: ${income}`);
+    income *= 1 + (partyState.heroBonuses.goldBonus || 0);
+    income = Math.floor(income);
 
     // Apply to state
     state.resources.gold += income;
@@ -45,10 +63,20 @@ export const incomeSystem = {
   },
 
   applyKillIncome(enemy) {
-    let income =
-    Math.log10(enemy.maxHp + 1) *
+  let income =
+    Math.sqrt(enemy.maxHp) * 0.03 +
+    Math.log10(enemy.maxHp + 10) * 20 *
     Math.max(10, BOUNTY_FACTOR * (1 + (state.buildings.castle?.level ?? 0) * 0.1));
+
+    const typeMult =
+    (ENEMY_TYPE_INCOME_MULT[enemy.type] ?? 1) *
+    (1 + TYPE_GROWTH_FACTOR * state.currentWave);
+
+    income *= typeMult;
     income *= getBonusGoldMultiplier();
+    income *= 1 + (partyState.heroBonuses.goldBonus || 0);
+
+    income = Math.floor(income);
 
     state.resources.gold += income;
     emit("goldChanged", state.resources.gold);
@@ -89,7 +117,7 @@ export const incomeSystem = {
       if (data.goldIncomePerHit) {
         goldPerSecond += data.goldIncomePerHit * lvl * 0.25; 
       }
-      if (data.id === 'dungeonShrine'){
+      if (data.id === 'dungeonShrine' && lvl > 0) {
         essencePerSecond += 0.01 * lvl; // flat 0.01 essence/sec per shrine level
       }
     }

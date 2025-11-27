@@ -79,6 +79,8 @@ export const DUNGEON_MILESTONES =
   { name: "Depths Survivor I", 
     rewards: [ 
       { type: "permanent_buff", stat: "bossDamage", value: 0.25 }, // +25% boss damage
+      { type: "permanent_buff", stat: "autoAttackDamage", value: 10 }, // +100% auto attack damage
+      { type: "permanent_buff", stat: "allDamage", value: 1.5 },
       { type: "building_unlock", buildingId: "dungeonShrine" },
       { type: "resource", id: "dungeonEssence", amount: 100 },
     ], 
@@ -87,7 +89,8 @@ export const DUNGEON_MILESTONES =
   { name: "Depths Survivor II", 
     rewards: [ 
       { type: "permanent_buff", stat: "critDamage", value: 0.10 }, // +10% crit damage 
-      { type: "resource", id: "dungeonEssence", amount: 100 },
+      { type: "permanent_buff", stat: "autoAttackDamage", value: 1 }, // +100% auto attack damage
+      { type: "resource", id: "dungeonEssence", amount: 200 },
       ], 
       description: "Reached depth 20 for the first time" 
   },
@@ -95,8 +98,9 @@ export const DUNGEON_MILESTONES =
   { name: "Depths Master I",
     rewards:
     [
-      { type: "permanent_buff", stat: "allDamage", value: 0.05 },
-      { type: "resource", id: "dungeonEssence", amount: 100 },
+      { type: "permanent_buff", stat: "allDamage", value: 1.5 },
+      { type: "permanent_buff", stat: "autoAttackDamage", value: 1 }, // +100% auto attack damage
+      { type: "resource", id: "dungeonEssence", amount: 300 },
     ],
     description: "Reached depth 30 for the first time" 
   }, 
@@ -106,7 +110,7 @@ export const DUNGEON_MILESTONES =
     [
       { type: "permanent_buff", stat: "autoAttackDamage", value: 1 }, // +100% auto attack damage
       { type: "permanent_buff", stat: "bossDamage", value: 0.50 },
-      { type: "resource", id: "dungeonEssence", amount: 100 },
+      { type: "resource", id: "dungeonEssence", amount: 400 },
     ],
     description: "Reached depth 40 for the first time"
       // more 
@@ -117,9 +121,8 @@ export const DUNGEON_MILESTONES =
     [
       { type: "permanent_buff", stat: "critDamage", value: 0.20 },
       { type: "permanent_buff", stat: "timeBonus", value: 2 }, // +2 seconds max dungeon time
-      { type: "resource", id: "dungeonEssence", amount: 200 },
-      { type: "spell_unlock", spellId: "dungeonNova" },
-      { type: "achievement", id: "dungeon_legend" }
+      { type: "resource", id: "dungeonEssence", amount: 500 },
+      //{ type: "achievement", id: "dungeon_legend" }
     ],
     description: "Reached depth 50 for the first time"
   },
@@ -127,9 +130,10 @@ export const DUNGEON_MILESTONES =
   { name: "Dungeon legend II",
     rewards:
     [
-      { type: "permanent_buff", stat: "allDamage", value: 0.15 },
+      { type: "permanent_buff", stat: "allDamage", value: 0.50 },
       { type: "permanent_buff", stat: "bossDamage", value: 1 }, // +100% boss damage
-      { type: "resource", id: "dungeonEssence", amount: 300 },
+      { type: "permanent_buff", stat: "autoAttackDamage", value: 1 }, // +100% auto attack damage
+      { type: "resource", id: "dungeonEssence", amount: 600 },
     ],
     description: "Reached depth 60 for the first time"
   },
@@ -139,7 +143,7 @@ export const DUNGEON_MILESTONES =
     [
       { type: "permanent_buff", stat: "critDamage", value: 0.25 },
       { type: "permanent_buff", stat: "autoAttackDamage", value: 2 }, // +200% auto attack damage
-      { type: "resource", id: "dungeonEssence", amount: 400 },
+      { type: "resource", id: "dungeonEssence", amount: 700 },
     ],
     description: "Reached depth 70 for the first time"
   }
@@ -441,6 +445,16 @@ window.showDungeonProgress = () => {
 
 window.resetMilestones = () => {
   dungeonProgress.claimedMilestones = [];
+  dungeonProgress.permanentBuffs = {
+    bossDamage: 0,
+    critDamage: 0,
+    allDamage: 0,
+    autoAttackDamage: 0,
+  };
+  if (partyState.heroBonuses.bossDamage) partyState.heroBonuses.bossDamage = 0;
+  if (partyState.heroBonuses.critDamage) partyState.heroBonuses.critDamage = 0;
+  if (partyState.heroBonuses.allDamage) partyState.heroBonuses.allDamage = 0;
+  if (partyState.heroBonuses.autoAttackDamage) partyState.heroBonuses.autoAttackDamage = 0;
   saveGame();
   //saveDungeonProgress();
   console.log("✅ Milestones reset!");

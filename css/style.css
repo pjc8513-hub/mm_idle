@@ -1845,3 +1845,59 @@ body, html {
   padding: 8px 18px;
   cursor: pointer;
 }
+
+.hidden {
+  display: none !important;
+}
+
+/* ---------- Choice Buttons ---------- */
+
+.ascendChoice {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+  font-size: 16px;
+  background: #2e2e42;
+  border: 1px solid #5a5a82;
+  border-radius: 8px;
+  color: #eee;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.ascendChoice:hover {
+  background: #3a3a56;
+  border-color: #8b8bff;
+  box-shadow: 0 0 10px #6a6aff55;
+}
+
+.ascendChoice:active {
+  transform: scale(0.97);
+}
+
+/* ---------- Cancel Button ---------- */
+
+#ascensionCancel {
+  margin-top: 15px;
+  padding: 10px;
+  width: 100%;
+  background: #442222;
+  border: 1px solid #885555;
+  border-radius: 6px;
+  color: #ffdddd;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+#ascensionCancel:hover {
+  background: #552b2b;
+  border-color: #bb7777;
+}
+
+/* ---------- Fade animation ---------- */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}

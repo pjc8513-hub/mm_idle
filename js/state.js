@@ -10,18 +10,23 @@ export const spellHandState = {
 
 export const partyState = {
   // Hero progression
-  heroLevel: 5, // for debug set to 5?
+  heroLevel: 51, // for debug set to 5?
   heroExp: 0,
   heroBaseStats: { hp: 10, attack: 20, defense: 5 }, // Base stats that scale with hero level
   heroGrowthPerLevel: { hp: 0.10, attack: 0.08, defense: 1 }, // How much hero gains per level
+
+  // Ascensions
+  ascensionCount: 0,
+  ascensionBonuses: { hp: 0.50, attack: 0.50, defense: 0.50 }, // Additional % bonuses per ascension
+  ascensionPermanentBuffs: { goldBonus: 0, bossDamage: 0, critDamage: 0, allDamage: 0, autoAttackDamage: 0 },
   
-  // External bonuses (blacksmith, upgrades, etc.)
+  // External bonuses (blacksmith, upgrades, ascension, etc.)
   heroBonuses: { attack: 0, defense: 0, hp: 0,
     physical: 0, fire: 0, water: 0, air: 0, earth: 0,
     poison: 0, light: 0, dark: 0, undead: 0,
     bossDamage: 0, critDamage: 0, criticalChance: 0,
-    autoAttackDamage: 0
-   }, // From buildings, items, etc.
+    autoAttackDamage: 0, allDamage: 0, goldBonus: 0
+   },
   
   // Class management
   unlockedClasses: [], // Array of class IDs

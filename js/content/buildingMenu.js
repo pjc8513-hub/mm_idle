@@ -6,7 +6,7 @@ import { emit, on } from "../events.js";
 import { logMessage } from "../systems/log.js";
 import { getBuildingLevel } from "../town.js";
 import { updateElementalModifiers } from "../systems/math.js";
-import { BOUNTY_FACTOR } from "../incomeSystem.js";
+import { BOUNTY_FACTOR, incomeSystem } from "../incomeSystem.js";
 //import { openDock } from "../systems/dockManager.js";
 
 export function initBuildingMenu() {
@@ -103,6 +103,26 @@ export const BUILDING_MENUS = {
     `;
     }
   },
+  graveyard: (building) => {
+        // 🔍 Find building info in state.buildings array
+    const b = state.buildings.find(b => b.id === building.id);
+    const buildingLevel = b ? b.level : 0;
+
+    if (buildingLevel <= 0) {
+      return `
+        <h3>Graveyard</h3>
+        <p>This building hasn't been constructed yet.</p>
+        <p>Build it first in order to increase the level of necromancer summons!</p>
+      `;
+    } else {
+    return `
+      <h3>Graveyard</h3>
+        <div class="building-stats">
+        <p>Level up to raise the attack of your necromancer summons!</p>
+      </div>
+    `;
+    }
+  },
   gemMine: (building) => {
         // 🔍 Find building info in state.buildings array
     const b = state.buildings.find(b => b.id === building.id);
@@ -194,7 +214,52 @@ export const BUILDING_MENUS = {
       </div>
     `;
     }
-  },        
+  },
+
+fountain: (building) => {
+  const b = state.buildings.find(b => b.id === building.id);
+  const lvl = b ? b.level : 0;
+
+  if (lvl <= 0) {
+    return `
+      <h3>Fountain</h3>
+      <p>This building hasn't been constructed yet.</p>
+    `;
+  }
+
+  const now = Date.now();
+  const nextDrink = state.fountainNextDrink || 0;
+  const remaining = Math.max(0, nextDrink - now);
+
+  const hoursReward = Math.max(1, lvl / 10);
+
+  let buttonText = "Drink from Fountain";
+  let disabled = "";
+  let btnColor = "green";
+
+  if (remaining > 0) {
+    let sec = remaining / 1000;
+    const mm = Math.floor(sec / 60);
+    const ss = Math.floor(sec % 60).toString().padStart(2, "0");
+    buttonText = `Cooldown: ${mm}:${ss}`;
+    disabled = "disabled";
+    btnColor = "gray";
+  }
+
+  return `
+    <h3>Fountain</h3>
+    <p>Drink to receive <strong>${hoursReward}h</strong> of idle rewards.</p>
+
+    <button id="fountainDrinkBtn"
+      style="background-color:${btnColor}; width:180px;"
+      ${disabled}
+      onclick="drinkFromFountain('${building.id}')"
+    >
+      ${buttonText}
+    </button>
+  `;
+},
+
 library: (building) => {
   const b = state.buildings.find(b => b.id === building.id);
   const buildingLevel = b ? b.level : 0;
@@ -832,7 +897,6 @@ function enforceInnSlotLimits() {
 }
 
 // Add this window function below the library menu definition:
-
 window.upgradeLibraryElement = function(elementId) {
   const modifier = partyState.elementalDmgModifiers[elementId] || 1;
   const currentLevel = Math.round((modifier - 1) / 0.10);
@@ -911,4 +975,23 @@ window.receiveBlessing = function () {
       dock.innerHTML = BUILDING_MENUS.dungeonShrine(building);
     }
   }
+};
+
+window.drinkFromFountain = function (buildingId) {
+  const lvl = getBuildingLevel(buildingId);
+  const hours = Math.max(1, lvl);
+  const seconds = hours * 3600;
+
+  // Generate idle rewards
+  const rewards = incomeSystem.calculateIdleIncome(seconds);
+
+  // Apply them
+  incomeSystem.applyIdleIncome(rewards);
+
+  logMessage(
+    `You drank from the Fountain and gained ${rewards.gold} gold and ${rewards.essence} essence (${hours}h idle rewards)!`
+  );
+
+  // Set a new cooldown — 10 minutes
+  state.fountainNextDrink = Date.now() + (10 * 60 * 1000);
 };

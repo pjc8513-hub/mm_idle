@@ -177,7 +177,7 @@ function render(delta) {
     uiState.ui.spriteAnimations.draw();
   }
 
-  
+  updateFountainCooldownUI();  
   floatingTextManager.render();
 }
 
@@ -205,3 +205,25 @@ function calculateGemIncome() {
   }
   return total;
 }
+
+window.updateFountainCooldownUI = function () {
+  const btn = document.getElementById("fountainDrinkBtn");
+  if (!btn) return; // menu not open
+
+  const now = Date.now();
+  const remaining = Math.max(0, (state.fountainNextDrink || 0) - now);
+
+  if (remaining <= 0) {
+    btn.disabled = false;
+    btn.style.backgroundColor = "green";
+    btn.textContent = "Drink from Fountain";
+    return;
+  }
+
+  const sec = remaining / 1000;
+  const mm = Math.floor(sec / 60);
+  const ss = Math.floor(sec % 60).toString().padStart(2, "0");
+  btn.textContent = `Cooldown: ${mm}:${ss}`;
+  btn.disabled = true;
+  btn.style.backgroundColor = "gray";
+};

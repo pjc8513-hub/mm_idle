@@ -36,6 +36,11 @@ export function renderResourceBar() {
   }
   displayGold = formatNumber(displayGold);
   document.getElementById("heroLevelResource").textContent = `Hero Level: ${partyState.heroLevel}`;
+  if (partyState.heroLevel <= 50) {
+    document.getElementById("ascendBtn").classList.add("hidden");
+  } else {
+    document.getElementById("ascendBtn").classList.remove("hidden");
+  }
   document.getElementById("gold").textContent = `Gold: ${displayGold.text}`;
   document.getElementById("gems").textContent = `Gems: ${state.resources.gems.toFixed(0)}/${state.resources.maxGems}`;
   document.getElementById("partyTotals").textContent = `Attack: ${displayAttack.text}`;

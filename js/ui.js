@@ -14,6 +14,7 @@ import { openDock, closeDock, DOCK_TYPES } from "./systems/dockManager.js";
 import { drawSpellHand, castSpellFromHand } from "./area.js";
 import { renderRunePanel } from "./runePanel.js";
 import { resetGame } from "./systems/saveSystem.js";
+import { applyAscensionBoon, ascend } from "./systems/ascensionSystem.js";
 
 export function initUI() {
   // panel switching (all buttons except New Game)
@@ -327,3 +328,20 @@ export function showIdleModal(rewards) {
     modal.classList.add("hidden");
   };
 }
+
+ascendBtn.addEventListener("click", () => {
+  ascendModal.classList.remove("hidden");
+});
+ascensionCancel.addEventListener("click", () => {
+  ascendModal.classList.add("hidden");
+});
+
+document.querySelectorAll(".ascendChoice").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const boon = btn.dataset.boon;
+    applyAscensionBoon(boon);
+    ascend();
+    ascendModal.classList.add("hidden");
+  });
+});
+
