@@ -10,7 +10,7 @@ export const spellHandState = {
 
 export const partyState = {
   // Hero progression
-  heroLevel: 51, // for debug set to 5?
+  heroLevel: 5, // for debug set to 5?
   heroExp: 0,
   heroBaseStats: { hp: 10, attack: 20, defense: 5 }, // Base stats that scale with hero level
   heroGrowthPerLevel: { hp: 0.10, attack: 0.08, defense: 1 }, // How much hero gains per level
