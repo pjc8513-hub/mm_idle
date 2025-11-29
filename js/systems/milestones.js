@@ -81,6 +81,7 @@ export const DUNGEON_MILESTONES =
       { type: "permanent_buff", stat: "bossDamage", value: 0.25 }, // +25% boss damage
       { type: "permanent_buff", stat: "autoAttackDamage", value: 10 }, // +100% auto attack damage
       { type: "permanent_buff", stat: "allDamage", value: 1.5 },
+      { type: "permanent_buff", stat: "goldBonus", value: 0.25 },
       { type: "building_unlock", buildingId: "dungeonShrine" },
       { type: "resource", id: "dungeonEssence", amount: 100 },
     ], 
@@ -89,7 +90,8 @@ export const DUNGEON_MILESTONES =
   { name: "Depths Survivor II", 
     rewards: [ 
       { type: "permanent_buff", stat: "critDamage", value: 0.10 }, // +10% crit damage 
-      { type: "permanent_buff", stat: "autoAttackDamage", value: 1 }, // +100% auto attack damage
+      { type: "permanent_buff", stat: "autoAttackDamage", value: 10 }, // +100% auto attack damage
+      { type: "permanent_buff", stat: "goldBonus", value: 0.25 },
       { type: "resource", id: "dungeonEssence", amount: 200 },
       ], 
       description: "Reached depth 20 for the first time" 
@@ -99,7 +101,8 @@ export const DUNGEON_MILESTONES =
     rewards:
     [
       { type: "permanent_buff", stat: "allDamage", value: 1.5 },
-      { type: "permanent_buff", stat: "autoAttackDamage", value: 1 }, // +100% auto attack damage
+      { type: "permanent_buff", stat: "autoAttackDamage", value: 10 }, // +100% auto attack damage
+      { type: "permanent_buff", stat: "goldBonus", value: 0.25 },
       { type: "resource", id: "dungeonEssence", amount: 300 },
     ],
     description: "Reached depth 30 for the first time" 
@@ -108,7 +111,8 @@ export const DUNGEON_MILESTONES =
   { name: "Depths Master II",
     rewards:
     [
-      { type: "permanent_buff", stat: "autoAttackDamage", value: 1 }, // +100% auto attack damage
+      { type: "permanent_buff", stat: "autoAttackDamage", value: 10 }, // +100% auto attack damage
+      { type: "permanent_buff", stat: "goldBonus", value: 0.25 },
       { type: "permanent_buff", stat: "bossDamage", value: 0.50 },
       { type: "resource", id: "dungeonEssence", amount: 400 },
     ],
@@ -121,6 +125,7 @@ export const DUNGEON_MILESTONES =
     [
       { type: "permanent_buff", stat: "critDamage", value: 0.20 },
       { type: "permanent_buff", stat: "timeBonus", value: 2 }, // +2 seconds max dungeon time
+      { type: "permanent_buff", stat: "goldBonus", value: 0.25 },
       { type: "resource", id: "dungeonEssence", amount: 500 },
       //{ type: "achievement", id: "dungeon_legend" }
     ],
@@ -266,7 +271,7 @@ function applyPermanentBuff(stat, value) {
       break;
 
     case "critChance":
-      partyState.criticalChance += value;
+      partyState.critChance += value;
       break;
 
     case "autoAttackDamage":
@@ -280,8 +285,15 @@ function applyPermanentBuff(stat, value) {
       break;
 
     case "timeBonus":
+      partyState.heroBonuses.timeBonus = 
+        (partyState.heroBonuses.timeBonus || 0) + value;
       // This would increase max dungeon time or normal wave time
       // dungeonState.DUNGEON_MAX_TIME += value; // Example
+      break;
+
+    case "goldBonus":
+      partyState.heroBonuses.goldBonus = 
+        (partyState.heroBonuses.goldBonus || 0) + value;
       break;
 
     default:
@@ -450,10 +462,16 @@ window.resetMilestones = () => {
     critDamage: 0,
     allDamage: 0,
     autoAttackDamage: 0,
+    timeBonus: 0,
+    goldBonus: 0,
+    critChance: 0
   };
   if (partyState.heroBonuses.bossDamage) partyState.heroBonuses.bossDamage = 0;
   if (partyState.heroBonuses.critDamage) partyState.heroBonuses.critDamage = 0;
   if (partyState.heroBonuses.allDamage) partyState.heroBonuses.allDamage = 0;
+  if (partyState.heroBonuses.timeBonus) partyState.heroBonuses.timeBonus = 0;
+  if (partyState.critChance) partyState.critChance = 0;
+  if (partyState.heroBonuses.goldBonus) partyState.heroBonuses.goldBonus = 0;
   if (partyState.heroBonuses.autoAttackDamage) partyState.heroBonuses.autoAttackDamage = 0;
   saveGame();
   //saveDungeonProgress();

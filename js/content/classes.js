@@ -37,7 +37,7 @@ export const classes = [
         attack: 5,
         defense: 10,
         speed: 1.3,
-        criticalChance: 0.15
+        critChance: 0.15
       },
       
       // How much the class grows per level
@@ -46,7 +46,7 @@ export const classes = [
         attack: 2,
         defense: 3
       },
-      //baseStats: { hp: partyState.heroStats.hp, attack: partyState.heroStats.attack, defense: 3, criticalChance: 0.15, speed: 1 },
+      //baseStats: { hp: partyState.heroStats.hp, attack: partyState.heroStats.attack, defense: 3, critChance: 0.15, speed: 1 },
       //growthPerLevel: { attack: 1, defense: 1 },
       attackCooldown: 0
     },
@@ -74,7 +74,7 @@ export const classes = [
         attack: 5,
         defense: 10,
         speed: 1,
-        criticalChance: 0.12
+        critChance: 0.12
       },
       
       // How much the class grows per level
@@ -84,7 +84,7 @@ export const classes = [
         defense: 3
       },
 
-      //baseStats: { hp: partyState.heroStats.hp * 1.2, attack: partyState.heroStats.attack * 0.8, defense: 3, criticalChance: 0.15, speed: 1.5 },
+      //baseStats: { hp: partyState.heroStats.hp * 1.2, attack: partyState.heroStats.attack * 0.8, defense: 3, critChance: 0.15, speed: 1.5 },
       //growthPerLevel: { attack: 1, defense: 1 },
       abilities: [
         { id: "leadership", unlockLevel: 1, description: "Reduces skill cooldowns of party members per autoattack" },
@@ -118,7 +118,7 @@ export const classes = [
         attack: 10,
         defense: 10,
         speed: 1.5,
-        criticalChance: 0.2
+        critChance: 0.2
       },
       
       // How much the class grows per level
@@ -165,7 +165,7 @@ export const classes = [
         hp: 0,
         attack: 5,
         defense: 10,
-        criticalChance: 0.1,
+        critChance: 0.1,
         speed: 1.2
       },
       
@@ -207,7 +207,7 @@ export const classes = [
         attack: 5,
         defense: 10,
         speed: 1.8,
-        criticalChance: 0.2
+        critChance: 0.2
       },
       
       // How much the class grows per level
@@ -237,7 +237,7 @@ export const classes = [
         hp: 5,
         attack: 5,
         defense: 10,
-        criticalChance: 0.1,
+        critChance: 0.1,
         speed: 1.3
       },
       
@@ -277,7 +277,7 @@ export const classes = [
         attack: 5,
         defense: 10,
         speed: 1.5,
-        criticalChance: 0.15
+        critChance: 0.15
       },
       
       // How much the class grows per level
@@ -322,7 +322,7 @@ export const classes = [
         attack: 2,
         defense: 10,
         speed: 1.2,
-        criticalChance: 0.1
+        critChance: 0.1
       },
       
       // How much the class grows per level
@@ -354,7 +354,7 @@ export const classes = [
         attack: 5,
         defense: 10,
         speed: 1.3,
-        criticalChance: 0.1
+        critChance: 0.1
       },
       
       // How much the class grows per level
@@ -405,7 +405,7 @@ export const classes = [
         attack: 5,
         defense: 10,
         speed: 1.8,
-        criticalChance: 0.16
+        critChance: 0.16
       },
       
       // How much the class grows per level
@@ -445,7 +445,7 @@ export const classes = [
         attack: 5,
         defense: 10,
         speed: 1.8,
-        criticalChance: 0.16
+        critChance: 0.16
       },
       
       // How much the class grows per level
@@ -475,7 +475,7 @@ export const classes = [
       sameTargetStreak: 0,
       resonance: "physical",
       hasAutoAttack: true,
-      baseStats: { hp: partyState.heroStats.hp * 0.6, attack: partyState.heroStats.attack * 1.2, defense: 2, criticalChance: 0.15, speed: 1.6 },
+      baseStats: { hp: partyState.heroStats.hp * 0.6, attack: partyState.heroStats.attack * 1.2, defense: 2, critChance: 0.15, speed: 1.6 },
       growthPerLevel: { attack: 1, defense: 1 },
       attackCooldown: 0 
     },
@@ -496,7 +496,7 @@ export const classes = [
       sameTargetStreak: 0,
       resonance: "dark",
       hasAutoAttack: true,
-      baseStats: { hp: partyState.heroStats.hp * 0.7, attack: partyState.heroStats.attack * 1.3, defense: 2, criticalChance: 0.15, speed: 1.8 },
+      baseStats: { hp: partyState.heroStats.hp * 0.7, attack: partyState.heroStats.attack * 1.3, defense: 2, critChance: 0.15, speed: 1.8 },
       growthPerLevel: { attack: 2, defense: 1 },
       attackCooldown: 0 
     }

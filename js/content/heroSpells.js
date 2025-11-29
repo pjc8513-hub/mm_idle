@@ -1490,7 +1490,7 @@ export const heroSpells = [
       // If light dominates, boost damage tier
       const modifiedTier = lightIsHighest ? 5 : null;
       if (modifiedTier!== null) this.tier = modifiedTier;
-      console.log(modifiedTier);
+      //console.log(modifiedTier);
       // Now apply damage
       const skillDamageRatio = getSkillDamageRatio(this.id, state.currentWave, this.classSkillLevel);
       let skillDamageObject;

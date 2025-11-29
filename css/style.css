@@ -1901,3 +1901,67 @@ body, html {
   from { opacity: 0; transform: scale(0.9); }
   to   { opacity: 1; transform: scale(1); }
 }
+
+#ascendBtn {
+  padding: 10px 20px;
+  margin-left: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  font-family: "Trebuchet MS", sans-serif;
+  color: #fff;
+  background: linear-gradient(180deg, #ffcc4d, #d49b00);
+  border: 2px solid #ffea75;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  /* Start hidden */
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* When you show the button (JS toggles this) */
+#ascendBtn:not(.hidden) {
+  opacity: 1;
+  pointer-events: auto;
+  animation: ascendPulse 1.5s infinite ease-in-out;
+}
+
+/* Glow + pop on hover */
+#ascendBtn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 15px #ffe48c, 0 0 30px #ffcc4d inset;
+}
+
+/* Click effect */
+#ascendBtn:active {
+  transform: scale(0.95);
+}
+
+/* Hide class */
+.hidden {
+  display: none;
+}
+
+/* Pulsing animation */
+@keyframes ascendPulse {
+  0% {
+    box-shadow: 0 0 8px rgba(255, 204, 77, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 204, 77, 1);
+  }
+  100% {
+    box-shadow: 0 0 8px rgba(255, 204, 77, 0.5);
+  }
+}
+
+.ascend-pop {
+  animation: ascendPopIn 0.5s ease-out;
+}
+
+@keyframes ascendPopIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); }
+}

@@ -7,6 +7,7 @@ import { logMessage } from './systems/log.js';
 import { uiAnimations } from './systems/animations.js';
 import { addGems } from './incomeSystem.js';
 import { levelUpHero } from './systems/math.js';
+import { floatingTextManager } from './systems/floatingtext.js';
 
 // Quest configuration
 const QUEST_CONFIG = {
@@ -206,6 +207,14 @@ function handleEnemyDefeated({ enemy }) {
  */
 function handleHeroLevelUp() {
   // console.log("[handleHeroLevelUp] Hero leveled up → regenerating quests...");
+  if (partyState.heroLevel === 50) {
+  // Ascend button just became available
+  const canvas = document.getElementById("enemyEffectsCanvas");
+
+  if (canvas) {
+    floatingTextManager.showAchievement("ASCEND UNLOCKED!");
+  }
+}
 
   // Regenerate prefix quests
   generateQuests({

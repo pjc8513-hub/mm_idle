@@ -94,7 +94,8 @@ function getEnemyPool(depth) {
 // Calculate enemy wave level based on depth
 function getDungeonEnemyLevel(depth) {
   // Start at player's current wave, scale up with depth
-  return state.currentWave + Math.floor(depth / 5);
+  //return state.currentWave + Math.floor(depth / 5);
+  return depth;
 }
 
 // Initialize dungeon mode

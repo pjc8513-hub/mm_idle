@@ -188,9 +188,9 @@ export function calculateClassStats(classTemplate, classLevel) {
     ((classTemplate.baseStats?.speed || 1) +
      (classTemplate.growthPerLevel?.speed || 0) * lvl);
 
-  stats.criticalChance = stats.criticalChance ??
-    ((classTemplate.baseStats?.criticalChance || 0) +
-     (classTemplate.growthPerLevel?.criticalChance || 0) * lvl);
+  stats.critChance = stats.critChance ??
+    ((classTemplate.baseStats?.critChance || 0) +
+     (classTemplate.growthPerLevel?.critChance || 0) * lvl);
 
   return stats;
 }

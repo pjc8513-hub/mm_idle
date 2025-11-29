@@ -337,7 +337,7 @@ function calculateDamage(attacker, target) {
   let isCritical = false;
   
   // Check for critical hit
-  const critChance = attacker.stats.criticalChance || 0;
+  const critChance = attacker.stats.critChance || 0;
   if (Math.random() < critChance) {
     isCritical = true;
     const critBonus = partyState.heroBonuses.criticalDamage || 0;
@@ -446,7 +446,7 @@ export function calculateSkillDamage(attacker, resonance, skillDamageRatio, targ
   let isCritical = false;
 
   // Critical hits
-  const critChance = attacker.stats.criticalChance || 0;
+  const critChance = attacker.stats.critChance || 0;
   if (Math.random() < critChance) {
     isCritical = true;
     const critBonus = partyState.heroBonuses.criticalDamage || 0;
@@ -522,7 +522,7 @@ export function calculateHeroSpellDamage(resonance, skillDamageRatio, target) {
   let isCritical = false;
 
   // Critical hits
-  const critChance = partyState.heroBaseStats.criticalChance || 0;
+  const critChance = partyState.heroBaseStats.critChance || 0;
   if (Math.random() < critChance) {
     isCritical = true;
     const critBonus = partyState.heroBonuses.criticalDamage || 0;

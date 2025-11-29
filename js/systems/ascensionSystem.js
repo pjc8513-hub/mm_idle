@@ -1,3 +1,4 @@
+import { dungeonState } from "../dungeonMode.js";
 import { state, partyState, spellHandState } from "../state.js";
 import { saveGame, loadGame } from "../systems/saveSystem.js";
 import { startWave } from "../waveManager.js";
@@ -21,6 +22,9 @@ export function applyAscensionBoon(type) {
     case "autoAttack":
       partyState.ascensionPermanentBuffs.autoAttackDamage += 1.00;
       break;
+    case "partySize":
+      partyState.ascensionPermanentBuffs.partySize += 1;
+      break;
   }
 }
 
@@ -42,6 +46,8 @@ export function applyAscensionBonuses() {
 }
 
 export function ascend() {
+    const partySize = 4 + (partyState.ascensionPermanentBuffs.partySize || 0);
+    console.log(`Ascending! New max party size: ${partySize}`);
   // 1. Increment ascension count
   partyState.ascensionCount++;
 
@@ -67,11 +73,15 @@ export function ascend() {
     nextArea: "",
     enemies: [[null,null,null],[null,null,null],[null,null,null]],
     buildings: [],
+    innAssignments: {
+    slots: [null, null, null, null], // Each slot holds a class ID or null
+    goldIncomeMultiplier: 1.0 // Starts at 1.0, increases by 0.2 per assignment
+    },
     spells: [],
     activeHeroSpells: [],
     combatLog: []
   });
-
+  console.log(`Max party size after ascension: ${state.maxPartySize}`);
   Object.assign(spellHandState, {
     spellHand: [],
     maxHandSize: 5,
@@ -90,12 +100,13 @@ export function ascend() {
     heroBonuses: { attack: 0, defense: 0, hp: 0,
       physical: 0, fire: 0, water: 0, air: 0, earth: 0,
       poison: 0, light: 0, dark: 0, undead: 0,
-      bossDamage: 0, critDamage: 0, criticalChance: 0,
+      bossDamage: 0, critDamage: 0, critChance: 0,
       autoAttackDamage: 0, allDamage: 0, goldBonus: 0 },
 
     party: [],
     classLevels: {},
     unlockedClasses: [],
+    maxPartySize: partySize,
 
     elementDmgModifiers: {
       physical: 1, fire: 1, water: 1, air: 1,
@@ -114,7 +125,21 @@ export function ascend() {
       critDamage: 0,
       allDamage: 0,
       autoAttackDamage: 0,
+      goldBonus: 0,
+      timeBonus: 0
     };
+    dungeonProgress.unlockedBuildings = [];
+
+  Object.assign(dungeonState, {
+    inDungeon: false,
+    depth: 0,
+    enemiesDefeated: 0,
+    dungeonEssence: 0,
+    dungeonStartTime: null,
+    enemiesSinceLastDepth: 0,
+    currentTier: 1,
+    maxDepth: 0
+  });
 
   // 3. Reapply ascension bonuses
   applyAscensionBonuses();

@@ -12,6 +12,7 @@ import { prefixes } from "./content/definitions.js";
 import { stopAutoAttack, startAutoAttack, setTarget } from "./systems/combatSystem.js";
 import { applyAreaBackground } from "./ui.js";
 import { updateSpellDock } from "./systems/dockManager.js";
+import { floatingTextManager } from "./systems/floatingtext.js";
 
 // waveManager.js
 const SCALING = {
@@ -289,6 +290,11 @@ export function handleWaveTimeout() {
 
 export function handleAreaCompleted() {
   const currentArea = AREA_TEMPLATES[state.currentArea];
+  const canvas = document.getElementById("enemyEffectsCanvas");
+
+  if (canvas) {
+    floatingTextManager.showAchievement("AREA COMPLETE!");
+  }
   // console.log(`Area ${currentArea.name} completed!`);
 
     emit("areaCompleted", {

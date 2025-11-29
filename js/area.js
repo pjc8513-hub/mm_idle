@@ -34,7 +34,7 @@ export function startWaveTimer() {
 
   // 🏰 DUNGEON MODE: Use fixed 10 second timer
   if (dungeonState.active) {
-    maxTime = dungeonState.DUNGEON_MAX_TIME;
+    maxTime = dungeonState.DUNGEON_MAX_TIME + (partyState.heroBonuses.timeBonus || 0);
     timeRemaining = maxTime;
     waveActive = true;
     paused = false;

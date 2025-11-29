@@ -14,7 +14,7 @@ export const summonTemplates = {
     rarity: "common",
     resonance: "undead",
     baseDuration: 15, // seconds
-    baseStats: { hp: partyState.heroBaseStats.hp * 0.1, attack: partyState.heroBaseStats.attack * 0.5, defense: 1, criticalChance: 0.05, speed: 1.0 },
+    baseStats: { hp: partyState.heroBaseStats.hp * 0.1, attack: partyState.heroBaseStats.attack * 0.5, defense: 1, critChance: 0.05, speed: 1.0 },
     hasAutoAttack: true,
     //image: "assets/images/summons/skeleton.png",
     order: 1 // Position in progression chain
@@ -26,7 +26,7 @@ export const summonTemplates = {
     resonance: "undead",
     baseDuration: 20,
     level: 1,
-    baseStats: { hp: partyState.heroBaseStats.hp * 0.2, attack: partyState.heroBaseStats.attack * 0.75, defense: 1, criticalChance: 0.03, speed: 0.8 },
+    baseStats: { hp: partyState.heroBaseStats.hp * 0.2, attack: partyState.heroBaseStats.attack * 0.75, defense: 1, critChance: 0.03, speed: 0.8 },
     hasAutoAttack: false,
     //image: "assets/images/summons/zombie.png",
     abilities: [
@@ -45,7 +45,7 @@ export const summonTemplates = {
     rarity: "rare",
     resonance: "undead",
     baseDuration: 15,
-    baseStats: { hp: partyState.heroBaseStats.hp * 0.3, attack: partyState.heroBaseStats.attack * 0.75, defense: 1, criticalChance: 0.15, speed: 1.3 },
+    baseStats: { hp: partyState.heroBaseStats.hp * 0.3, attack: partyState.heroBaseStats.attack * 0.75, defense: 1, critChance: 0.15, speed: 1.3 },
     hasAutoAttack: false,
     level: 1,
     abilities: [
@@ -63,7 +63,7 @@ export const summonTemplates = {
     rarity: "legendary",
     resonance: "undead",
     baseDuration: 10,
-    baseStats: { hp: partyState.heroBaseStats.hp * 0.5, attack: partyState.heroBaseStats.attack * 1.5, defense: 1, criticalChance: 0.2, speed: 1.5 },
+    baseStats: { hp: partyState.heroBaseStats.hp * 0.5, attack: partyState.heroBaseStats.attack * 1.5, defense: 1, critChance: 0.2, speed: 1.5 },
     hasAutoAttack: false,
     //image: "assets/images/summons/ghostdragon.png",
     abilities: [
@@ -81,7 +81,7 @@ export const summonTemplates = {
     rarity: "Activated via skill",
     baseDuration: 15,
     hasAutoAttack: true,
-    baseStats: { hp: partyState.heroBaseStats.hp * 0.4, attack: partyState.heroBaseStats.attack * 1.8, defense: 2, criticalChance: 0.15, speed: 1.2 },
+    baseStats: { hp: partyState.heroBaseStats.hp * 0.4, attack: partyState.heroBaseStats.attack * 1.8, defense: 2, critChance: 0.15, speed: 1.2 },
     abilities: [
       { id: "prismaticLight", unlockLevel: 1, active: true}
     ],
@@ -96,7 +96,7 @@ export const summonTemplates = {
     rarity: "Activated via skill",
     baseDuration: 12,
     hasAutoAttack: false,
-    baseStats: { hp: partyState.heroBaseStats.hp * 0.4, attack: partyState.heroBaseStats.attack * 1.7, defense: 2, criticalChance: 0.15, speed: 1.2 },
+    baseStats: { hp: partyState.heroBaseStats.hp * 0.4, attack: partyState.heroBaseStats.attack * 1.7, defense: 2, critChance: 0.15, speed: 1.2 },
     abilities: [
       { id: "fireball", unlockLevel: 1, active: true}
     ],
@@ -111,7 +111,7 @@ export const summonTemplates = {
     rarity: "Activated via skill",
     baseDuration: 10,
     hasAutoAttack: false,
-    baseStats: { hp: partyState.heroBaseStats.hp * 0.4, attack: partyState.heroBaseStats.attack * 2, defense: 2, criticalChance: 0.10, speed: 1 },
+    baseStats: { hp: partyState.heroBaseStats.hp * 0.4, attack: partyState.heroBaseStats.attack * 2, defense: 2, critChance: 0.10, speed: 1 },
     abilities: [
       { id: "splash", unlockLevel: 1, active: true}
     ],
@@ -278,7 +278,7 @@ function updateSummonStats(summon, template, bonusLevel, summonerClass) {
     mp: template.baseStats.mp,
     attack: template.baseStats.attack + attackBonus,
     defense: template.baseStats.defense + defenseBonus,
-    criticalChance: template.baseStats.criticalChance,
+    critChance: template.baseStats.critChance,
     speed: template.baseStats.speed
   };
 }
