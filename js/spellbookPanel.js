@@ -1,6 +1,7 @@
 // spellbookPanel.js
 import { emit, on } from "./events.js"; // adjust path as needed
-import { state, partyState, quickSpellState } from "./state.js";
+import { state, partyState, quickSpellState, spellHandState } from "./state.js";
+import { updateSpellDock } from "./systems/dockManager.js";
 import { heroSpells } from "./content/heroSpells.js";
 import { getBuildingLevel } from "./town.js";
 
@@ -90,28 +91,47 @@ function fullRenderSpellbookPanel() {
     }
 
     spellsByTier[tier].forEach(spell => {
-      const spellCard = document.createElement("div");
-      spellCard.classList.add("spellCard");
-      spellCard.dataset.spellId = spell.id;
-      spellCard.dataset.tier = tier;
+const spellCard = document.createElement("div");
+spellCard.classList.add("spellCard");
+spellCard.dataset.spellId = spell.id;
+spellCard.dataset.tier = tier;
 
-      // Tooltip for hover
-      spellCard.title = `${spell.name} (Lvl ${spell.skillLevel})\n${spell.description}`;
+// Tooltip
+spellCard.title = `${spell.name} (Lvl ${spell.skillLevel})\n${spell.description}`;
 
-      // --- Icon only ---
-      const imageDiv = document.createElement("div");
-      imageDiv.classList.add("spellImage");
-      const img = document.createElement("img");
-      img.src = spell.icon;
-      img.alt = spell.name;
-      img.onerror = () => {
-        img.style.display = "none";
-        imageDiv.innerHTML = `<div class="spell-placeholder">${spell.name[0]}</div>`;
-      };
-      imageDiv.appendChild(img);
+// Icon
+const imageDiv = document.createElement("div");
+imageDiv.classList.add("spellImage");
+const img = document.createElement("img");
+img.src = spell.icon;
+img.alt = spell.name;
+img.onerror = () => {
+  img.style.display = "none";
+  imageDiv.innerHTML = `<div class="spell-placeholder">${spell.name[0]}</div>`;
+};
+imageDiv.appendChild(img);
+spellCard.appendChild(imageDiv);
 
-      spellCard.appendChild(imageDiv);
-      tierContainer.appendChild(spellCard);
+// --- Register button ---
+const registerBtn = document.createElement("button");
+registerBtn.classList.add("spellRegisterBtn");
+
+// set initial label based on hand contents
+updateRegisterButtonState(registerBtn, spell.id, isUnlocked);
+
+// click handler (toggle)
+registerBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toggleRegisterSpell(spell.id);
+  updateSpellDock();
+  updateSpellbookRegisterButtons(); // refresh all button states
+});
+
+spellCard.appendChild(registerBtn);
+
+
+tierContainer.appendChild(spellCard);
+
     });
 
     container.appendChild(tierContainer);
@@ -163,6 +183,8 @@ export function updateSpellbookPanel() {
       card.title = `${spell.name} (Lvl ${spell.skillLevel})\n${spell.description}`;
     }
   });
+  updateSpellbookRegisterButtons();
+
 }
 // =============================================================
 // HELPERS
@@ -186,4 +208,66 @@ function toggleQuickSpell(spellId) {
 function arraysEqual(a, b) {
   if (a.length !== b.length) return false;
   return a.every((v, i) => v === b[i]);
+}
+
+function registerSpellToHand(spellId) {
+  // already in hand? do nothing
+  if (spellHandState.hand.includes(spellId)) return;
+
+  // limit reached?
+  if (spellHandState.hand.length >= spellHandState.maxHandSize) {
+    console.warn("Spell hand is full");
+    return;
+  }
+
+  spellHandState.hand.push(spellId);
+  updateSpellDock();
+  updateSpellbookRegisterButtons(); // refresh button states
+}
+
+function updateSpellbookRegisterButtons() {
+  const libraryLevel = getBuildingLevel("library");
+
+  document.querySelectorAll(".spellCard").forEach(card => {
+    const spellId = card.dataset.spellId;
+    const tier = parseInt(card.dataset.tier);
+    const isUnlocked = libraryLevel >= tier;
+
+    const btn = card.querySelector(".spellRegisterBtn");
+    updateRegisterButtonState(btn, spellId, isUnlocked);
+  });
+}
+
+
+function toggleRegisterSpell(spellId) {
+  const idx = spellHandState.hand.indexOf(spellId);
+
+  if (idx >= 0) {
+    // remove
+    spellHandState.hand.splice(idx, 1);
+  } else {
+    // add, enforce cap
+    if (spellHandState.hand.length >= spellHandState.maxHandSize) {
+      console.warn("Spell hand is full");
+      return;
+    }
+    spellHandState.hand.push(spellId);
+  }
+}
+
+function updateRegisterButtonState(btn, spellId, isUnlocked = true) {
+  const inHand = spellHandState.hand.includes(spellId);
+  const isFull = spellHandState.hand.length >= spellHandState.maxHandSize;
+
+  // Set label
+  btn.textContent = inHand ? "Unregister" : "Register";
+
+  // If tier locked → disable always
+  if (!isUnlocked) {
+    btn.disabled = true;
+    return;
+  }
+
+  // If full AND the spell is not already registered → disable
+  btn.disabled = !inHand && isFull;
 }

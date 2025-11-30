@@ -83,7 +83,7 @@ export function ascend() {
   });
   console.log(`Max party size after ascension: ${state.maxPartySize}`);
   Object.assign(spellHandState, {
-    spellHand: [],
+    hand: [],
     maxHandSize: 5,
     sparkComboCount: 0,
     activeTornado: false,

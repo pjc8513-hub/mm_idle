@@ -129,6 +129,7 @@ on("enemyDefeated", ({ enemy }) => {
     }
   }
 
+  /*
   spellHandState.counter += 1;
   // Draw a new spell every 3 defeated enemies
   if (spellHandState.counter < 3) return;
@@ -170,7 +171,7 @@ on("enemyDefeated", ({ enemy }) => {
 
   emit("spellHandUpdated");
   updateSpellDock();
-
+  */
 });
 
 on("waveStarted", () => {

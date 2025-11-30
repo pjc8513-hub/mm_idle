@@ -1445,6 +1445,7 @@ export function castSpellFromHand(spellId, handIndex) {  // ✅ Add handIndex pa
   state.resources.gems -= gemCost;
   
   // ✅ Remove spell from hand by index (not by ID!)
+  /*
   if (handIndex !== undefined && handIndex >= 0 && handIndex < spellHandState.hand.length) {
     spellHandState.hand.splice(handIndex, 1);
   } else {
@@ -1454,7 +1455,7 @@ export function castSpellFromHand(spellId, handIndex) {  // ✅ Add handIndex pa
       spellHandState.hand.splice(indexToRemove, 1);
     }
   }
-  
+  */
   emit("gemsChanged");
   emit("spellCast", spellId);
   updateSpellDock(); // ✅ Update UI after casting

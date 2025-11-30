@@ -1637,6 +1637,28 @@ body, html {
   gap: 10px;
   padding: 10px;
 }
+
+.spellRegisterBtn {
+  margin-top: 6px;
+  padding: 4px 10px;
+  background: #444;
+  color: #ddd;
+  border: 1px solid #555;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: 0.2s;
+}
+
+.spellRegisterBtn:hover:not(:disabled) {
+  background: #666;
+}
+
+.spellRegisterBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /*
 .quick-spell-btn {
   display: flex;
