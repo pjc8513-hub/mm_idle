@@ -733,6 +733,54 @@ export const abilities = [
       }
     },
     {
+      id: "strafe",
+      name: "Strafe",
+      type: "active",
+      resonance: "physical",
+      tier: 5,
+      get skillLevel() {
+          const character = partyState.party.find(c => c.id === this.class);
+          return character ? character.level : 1;
+      },
+      spritePath: 'assets/images/sprites/strafe.webp',
+      cooldown: 12000,
+      class: "archer",
+
+      activate: function (attacker, target, context) {
+          if (!target) return;
+
+          const skillDamageRatio = getAbilityDamageRatio(this.id, state.currentWave);
+
+          // Get all enemies on chosen row
+          const enemies = getEnemiesInRow(target.position.row);
+
+          enemies.forEach(({ enemy, row, col }) => {
+
+              // Force crit via new parameter
+              const skillDamageObject = calculateSkillDamage(
+                  attacker,
+                  this.resonance,
+                  skillDamageRatio,
+                  enemy,
+                  true // <<--- FORCE CRIT
+              );
+              //damage bonus for the total number of physical counters on the enemy
+              const physicalCounters = enemy.counters.physical || 0;
+              if (physicalCounters > 0) {
+                  const bonusMultiplier = 1 + (0.15 * physicalCounters);
+                  skillDamageObject.damage *= bonusMultiplier;
+              }
+
+              // Deal damage
+              damageEnemy(enemy, skillDamageObject, this.resonance);
+
+              // Visuals
+              handleSkillAnimation("strafe", row, col);
+              showFloatingDamage(row, col, skillDamageObject);
+          });
+      }
+  },
+    {
       id: "landslide",
       name: "Landslide",
       type: "active",
@@ -810,6 +858,75 @@ export const abilities = [
         fireballSpell.activate(this.skillLevel);
       }
     },
+    {
+        id: "implosion",
+        name: "Implosion",
+        type: "active",
+        resonance: "air",
+        tier: 5,
+        get skillLevel(){
+          const character = partyState.party.find(c => c.id === this.class);
+          return character ? character.level : 1; // or some other default value
+        },
+        cooldown: 3000,
+        spritePath: 'assets/images/sprites/sparks.webp',
+        class: "sorceress",
+          activate: function (attacker) {
+            
+            const activeEnemies = getActiveEnemies();
+            if (activeEnemies.length === 0) {
+              logMessage(`No enemies available for ${this.name}`);
+              return;
+            }
+        
+            // Pick a random active enemy as the splash origin
+            const randomEnemy = activeEnemies[Math.floor(Math.random() * activeEnemies.length)];
+            //console.log(`Fireball targets enemy at (${randomEnemy.position.row}, ${randomEnemy.position.col})`);
+            let { row, col } = randomEnemy.position;
+            //console.log(`Enemy position: row ${row}, col ${col}`);
+            const numRows = state.enemies.length;
+            const numCols = state.enemies[0].length;
+        
+            // Adjust the top-left corner of the 2x2 zone so it stays within bounds
+            // The zone covers: (baseRow, baseCol), (baseRow+1, baseCol), (baseRow, baseCol+1), (baseRow+1, baseCol+1)
+            let baseRow = row;
+            let baseCol = col;
+        
+            if (baseRow === numRows - 1) baseRow--; // shift up if on bottom edge
+            if (baseCol === numCols - 1) baseCol--; // shift left if on right edge
+        
+            // Collect enemies in that adjusted 2x2 zone
+            const targets = [];
+            for (let r = baseRow; r < baseRow + 2; r++) {
+              for (let c = baseCol; c < baseCol + 2; c++) {
+                const enemy = state.enemies[r][c];
+                if (enemy && enemy.hp > 0) {
+                  targets.push({ enemy, row: r, col: c });
+                }
+              }
+            }
+        
+            // Apply damage + effects
+            targets.forEach(({ row, col }) => {
+              const skillDamageRatio = getAbilityDamageRatio(this.id, state.currentWave);
+              const enemy = state.enemies[row][col];
+              //console.log(skillDamageRatio);
+              const skillDamageObject = calculateSkillDamage(attacker, this.resonance, skillDamageRatio, enemy);
+              //console.log(skillDamageObject);
+              //damage bonus for the total number of air counters on the enemy
+              const airCounters = enemy.counters.air || 0;
+              if (airCounters > 0) {
+                  const bonusMultiplier = 1 + (0.15 * airCounters);
+                  skillDamageObject.damage *= bonusMultiplier;
+              }
+              
+              damageEnemy(enemy, skillDamageObject, this.resonance);
+              handleSkillAnimation("splash", row, col);
+              showFloatingDamage(row, col, skillDamageObject);
+              if (!dungeonState.active && enemy.hp <= 0) renderAreaPanel();
+            });
+          },
+      },
       {
         id: "summonWaterElemental",
         name: "Summon Water Elemental",
@@ -887,6 +1004,62 @@ export const abilities = [
             });
           },
       },
+    {
+    id: "massDistortion",
+    name: "Mass Distortion",
+    type: "active",
+    resonance: "earth",
+    tier: 5,
+    class: "druid",
+    spritePath: 'assets/images/sprites/life_drain.png',
+    cooldown: 18000, // Long cooldown - adjust as needed
+
+    get skillLevel() {
+        const character = partyState.party.find(c => c.id === this.class);
+        return character ? character.level : 1;
+    },
+
+    activate: function (attacker, target, context) {
+        // Pick random enemy
+        const activeEnemies = state.enemies.flat().filter(e => e);
+        if (activeEnemies.length === 0) return;
+
+        const enemy = activeEnemies[Math.floor(Math.random() * activeEnemies.length)];
+        const { row, col } = enemy.position;
+
+        const skillDamageRatio = getAbilityDamageRatio(this.id, state.currentWave);
+
+        // Base damage calculation
+        let dmg = calculateSkillDamage(
+            attacker,
+            this.resonance,
+            skillDamageRatio,
+            enemy
+        );
+
+        // ----- BONUS A: % of enemy HP -----
+        // Example: 8% of max HP as bonus (tweak to your liking)
+        const HP_PERCENT = 0.08; 
+        const hpBonus = Math.floor(enemy.hp * HP_PERCENT);
+
+        // ----- BONUS B: Earth counters -----
+        const EARTH_STACK_BONUS = 0.04; // +4% damage per stack
+        const stackBonusMult = 1 + (enemy.counters?.earth || 0) * EARTH_STACK_BONUS;
+
+        // Combine the bonuses
+        let finalDamage = Math.floor((dmg.damage + hpBonus) * stackBonusMult);
+
+        // Replace damage in the skillDamageObject
+        dmg.damage = finalDamage;
+
+        // Apply the hit
+        damageEnemy(enemy, dmg, this.resonance);
+
+        // Visuals
+        handleSkillAnimation("massDistortion", row, col);
+        showFloatingDamage(row, col, dmg);
+    }
+},
     {
       id: "starFall",
       name: "starFall",
@@ -989,6 +1162,49 @@ export const abilities = [
     }
     },
     {
+    id: 'honeAttack',
+    name: 'Hone Attack',
+    cooldown: 17000,
+    class: 'templar',
+    buffAmount: 0.50,
+    type: 'active',
+    resonance: 'light',
+    description: 'Increases critical chance for 5 seconds',
+    active: 'false',
+    remaining: 0,
+    duration: 5,
+    activate: function (){
+    
+      let duration = this.duration;
+      // Apply visual
+      applyVisualEffect("light-flash", 0.8);
+      logMessage(`✨ ${this.name} activated!`);
+      // Activate buff
+      this.active = true;
+      this.remaining = duration;
+      // apply this buff
+      addHeroBonus('critChance', this.buffAmount);
+
+    // Register buff for delta tracking
+    if (!partyState.activeHeroBuffs) partyState.activeHeroBuffs = [];
+    const existingBuff = partyState.activeHeroBuffs.find(b => b.id === this.id);
+    if (!existingBuff) {
+      partyState.activeHeroBuffs.push({
+        id: this.id,
+        remaining: this.remaining,
+        onExpire: () => {
+          // Restore original might
+          partyState.heroBonuses.critChance = partyState.heroBonuses.critChance - this.buffAmount;
+          updateTotalStats();
+          console.log('bonuses:', partyState.heroBonuses);
+          this.active = false;
+          logMessage("⚡ Hone Attack has worn off.");
+        },
+      });
+    }
+    }
+    },
+    {
         id: "eclipse",
         name: "Eclipse",
         type: "active",
@@ -1072,6 +1288,68 @@ export const abilities = [
             });
         }
     },
+    {
+    id: "undertaker",
+    name: "Undertaker",
+    type: "active",
+    resonance: "undead",
+    tier: 5,
+    class: "necromancer",
+    spritePath: 'assets/images/sprites/life_drain.png',
+    cooldown: 12000, // adjust as desired
+
+    get skillLevel() {
+        const character = partyState.party.find(c => c.id === this.class);
+        return character ? character.level : 1;
+    },
+
+    activate: function (attacker, target, context) {
+        // Get all active enemies
+        const activeEnemies = state.enemies
+            .flat()
+            .filter(e => e && !e.isDead);
+
+        if (activeEnemies.length === 0) return;
+
+        // Filter for eligible execution targets (non-boss + 20 undead counters)
+        const validTargets = activeEnemies.filter(enemy =>
+            !enemy.isBoss &&
+            (enemy.counters?.undead || 0) >= 5
+        );
+
+        // If no target qualifies → cast Rot
+        if (validTargets.length === 0) {
+            const hero = partyState.party.find(c => c.id === this.class);
+            const rotSpell = heroSpells.find(s => s.id === "rot");
+
+            if (rotSpell) {
+                rotSpell.activate(this.skillLevel, hero);
+            }
+            return;
+        }
+
+        // Pick a random valid victim
+        const enemy = validTargets[Math.floor(Math.random() * validTargets.length)];
+        const { row, col } = enemy.position;
+
+        // We want to show the BIG number, so damage = enemy.hp
+        const bigKillDamage = {
+            damage: enemy.hp,
+            isCritical: false,
+            resonance: this.resonance,
+            multiplier: 1,
+            elementalMatchup: "execute"
+        };
+
+        // Execute the enemy
+        damageEnemy(enemy, bigKillDamage, this.resonance);
+
+        // Animation & floating number
+        handleSkillAnimation("undertaker", row, col);
+        showFloatingDamage(row, col, bigKillDamage);
+    }
+},
+
     {
     id: "rage",
       name: "Rage",

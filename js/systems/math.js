@@ -190,7 +190,8 @@ export function calculateClassStats(classTemplate, classLevel) {
 
   stats.critChance = stats.critChance ??
     ((classTemplate.baseStats?.critChance || 0) +
-     (classTemplate.growthPerLevel?.critChance || 0) * lvl);
+     (classTemplate.growthPerLevel?.critChance || 0) * lvl) +
+     (partyState.heroBonuses.critChance || 0);
 
   return stats;
 }

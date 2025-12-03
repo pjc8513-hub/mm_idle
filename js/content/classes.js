@@ -130,11 +130,13 @@ export const classes = [
       attackCooldown: 0,
       abilities: [
         { id: "sparks", unlockLevel: 1, active: false },
-        { id: "falconer", unlockLevel: 5, active: false },        
+        { id: "falconer", unlockLevel: 5, active: false },
+        { id: "strafe", unlockLevel: 15, active: false },
       ],
       skills: {
         sparks: { cooldownRemaining: 8000 },
         falconer: { cooldownRemaining: 11000 },
+        strafe: { cooldownRemaining: 12000 },
       }, 
     },
     { id: "sorceress", 
@@ -153,10 +155,12 @@ export const classes = [
       hasAutoAttack: true,
       isEchoing: false,
       abilities: [
-        { id: "flamePillar", unlockLevel: 1, active: false }
+        { id: "flamePillar", unlockLevel: 1, active: false },
+        { id: "implosion", unlockLevel: 25, active: false }
       ],
       skills: {
-        flamePillar: { cooldownRemaining: 6500 }
+        flamePillar: { cooldownRemaining: 6500 },
+        implosion: { cooldownRemaining: 12000 }
       },
       heroStatRatios: { hp: 0.5, attack: 1.5, defense: 2},
       // Class's own base stats (independent of hero)
@@ -290,6 +294,7 @@ export const classes = [
         { id: "blindingLight", unlockLevel: 1 },
         { id: "might", unlockLevel: 1 },
         { id: "smite", unlockLevel: 5, active: false },
+        { id: "honeAttack", unlockLevel: 10 },
       ],
       skills: {
         blindingLight: { active: true },
@@ -315,6 +320,12 @@ export const classes = [
       resonance: "dark",
       hasAutoAttack: false,
       role: "caster",
+      abilities: [
+        { id: "undertaker", unlockLevel: 20, active: false },
+      ],
+      skills: {
+        undertaker: { cooldownRemaining: 12000 },
+      },
       heroStatRatios: { hp: 0.9, attack: 1, defense: 2 },
       // Class's own base stats (independent of hero)
       baseStats: {
@@ -368,6 +379,7 @@ export const classes = [
         { id: "landslide", unlockLevel: 1, active: false },
         { id: "rockBlast", unlockLevel: 1, active: false },
         { id: "summonWaterElemental", unlockLevel: 5, active: false },
+        { id: "massDistortion", unlockLevel: 25, active: false },
         //{ id: "earthquake", unlockLevel: 20, active: false },
         
       ],
@@ -375,6 +387,7 @@ export const classes = [
         landslide: { cooldownRemaining: 7500 },
         rockBlast: { cooldownRemaining: 9500 },
         summonWaterElemental: { cooldownRemaining: 25000 },
+        massDistortion: { cooldownRemaining: 18000 },
         //earthquake: { cooldownRemaining: 22000 }
       },
     },

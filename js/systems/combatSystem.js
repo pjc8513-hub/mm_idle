@@ -340,7 +340,7 @@ function calculateDamage(attacker, target) {
   const critChance = attacker.stats.critChance || 0;
   if (Math.random() < critChance) {
     isCritical = true;
-    const critBonus = partyState.heroBonuses.criticalDamage || 0;
+    const critBonus = partyState.heroBonuses.critDamage || 0;
     baseDamage *= COMBAT_CONFIG.CRITICAL_DAMAGE_MULTIPLIER * (1 + critBonus);
   }
   
@@ -427,7 +427,8 @@ function calculateDamage(attacker, target) {
  * @param {*} target 
  * @returns 
  */
-export function calculateSkillDamage(attacker, resonance, skillDamageRatio, target) {
+export function calculateSkillDamage(attacker, resonance, skillDamageRatio, target, forceCrit = false) {
+
   // check for enemy immunity (elementals, dragons, and demons are immune to their own element)
   if ((target.elementType === resonance && target.type === 'elemental')||
       (target.elementType === resonance && target.type === 'dragon')||
@@ -443,15 +444,17 @@ export function calculateSkillDamage(attacker, resonance, skillDamageRatio, targ
 
   // Base attack
   let baseDamage = partyState.totalStats.attack || 90;
-  let isCritical = false;
-
+  
   // Critical hits
+  let isCritical = false;
   const critChance = attacker.stats.critChance || 0;
-  if (Math.random() < critChance) {
+
+  if (forceCrit || Math.random() < critChance) {
     isCritical = true;
-    const critBonus = partyState.heroBonuses.criticalDamage || 0;
+    const critBonus = partyState.heroBonuses.critDamage || 0;
     baseDamage *= COMBAT_CONFIG.CRITICAL_DAMAGE_MULTIPLIER * (1 + critBonus);
   }
+
 
   // console.log('[Skill Damage] baseDamage:', baseDamage, 'skillDamageRatio:', skillDamageRatio);
 
@@ -525,7 +528,7 @@ export function calculateHeroSpellDamage(resonance, skillDamageRatio, target) {
   const critChance = partyState.heroBaseStats.critChance || 0;
   if (Math.random() < critChance) {
     isCritical = true;
-    const critBonus = partyState.heroBonuses.criticalDamage || 0;
+    const critBonus = partyState.heroBonuses.critDamage || 0;
     baseDamage *= COMBAT_CONFIG.CRITICAL_DAMAGE_MULTIPLIER * (1 + critBonus);
   }
 
